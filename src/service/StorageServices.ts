@@ -10,15 +10,12 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 @Service()
 export default class StorageServices {
-
-    constructor() {
-    }
+    constructor() {}
 
     public async uploadFile(filePath: string) {
         const key = path.basename(filePath);
 
         const buffer = readFileSync(filePath);
-
 
         return `https://${BUCKET}.s3-${REGION}.amazonaws.com/${key}`;
     }

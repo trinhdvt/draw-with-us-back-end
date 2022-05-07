@@ -6,7 +6,7 @@ import {Action} from "routing-controllers";
 const jwtService = Container.get(JwtService);
 
 export function PreAuthorize(action: Action, roles: string[]): boolean {
-    const authHeader = action.request.headers['authorization'];
+    const authHeader = action.request.headers["authorization"];
     if (!authHeader) {
         return false;
     }
@@ -21,14 +21,16 @@ export function PreAuthorize(action: Action, roles: string[]): boolean {
             const credential: IUserCredential = jwtService.getPayLoad(token);
             return roles.indexOf(credential.role) != -1;
         }
-    } catch (e) {
-    }
+    } catch (e) {}
     return false;
 }
 
 export function CurrentUserChecker(action: Action) {
     if (PreAuthorize(action, [])) {
-        const token = action.request.headers['authorization'].replace("Bearer ", "");
+        const token = action.request.headers["authorization"].replace(
+            "Bearer ",
+            ""
+        );
 
         const credential: IUserCredential = jwtService.getPayLoad(token);
         return credential;

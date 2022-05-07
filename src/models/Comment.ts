@@ -1,4 +1,11 @@
-import {BelongsTo, BelongsToMany, Column, ForeignKey, Model, Table} from "sequelize-typescript";
+import {
+    BelongsTo,
+    BelongsToMany,
+    Column,
+    ForeignKey,
+    Model,
+    Table
+} from "sequelize-typescript";
 import Post from "./Post";
 import Account from "./Account";
 
@@ -6,7 +13,6 @@ import Account from "./Account";
     tableName: "comment"
 })
 class Comment extends Model {
-
     @Column({
         primaryKey: true,
         autoIncrement: true
@@ -31,7 +37,7 @@ class Comment extends Model {
     content!: string;
 
     @Column
-    commentDate!: Date
+    commentDate!: Date;
 
     @BelongsToMany(() => Account, () => CommentLike)
     likedAccount?: Account[];
@@ -41,20 +47,17 @@ class Comment extends Model {
     tableName: "comment_like"
 })
 class CommentLike extends Model {
-
     @ForeignKey(() => Comment)
     @Column({
-        primaryKey: true,
+        primaryKey: true
     })
     commentId!: number;
 
     @ForeignKey(() => Account)
     @Column({
-        primaryKey: true,
+        primaryKey: true
     })
     accountId!: number;
-
 }
-
 
 export {Comment, CommentLike};

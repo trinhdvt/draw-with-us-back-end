@@ -7,17 +7,14 @@ export enum PopularType {
 }
 
 export class Sort {
-
     attribute?: string;
 
     direction: "ASC" | "DESC" = "DESC";
 
-    constructor() {
-    }
+    constructor() {}
 }
 
 export default class PageRequest {
-
     @IsOptional()
     @Min(0, {message: "Page size must greater than 0"})
     size: number = 10;
@@ -37,4 +34,3 @@ export default class PageRequest {
     @Exclude()
     sort: Sort = new Sort();
 }
-

@@ -1,11 +1,18 @@
-import {BelongsTo, Column, DefaultScope, ForeignKey, Model, Table} from "sequelize-typescript";
+import {
+    BelongsTo,
+    Column,
+    DefaultScope,
+    ForeignKey,
+    Model,
+    Table
+} from "sequelize-typescript";
 import Account from "./Account";
 import Post from "./Post";
 
 @DefaultScope(() => ({
     order: [
-        ['solved', 'DESC'],
-        ['reportedDate', 'DESC']
+        ["solved", "DESC"],
+        ["reportedDate", "DESC"]
     ]
 }))
 @Table({

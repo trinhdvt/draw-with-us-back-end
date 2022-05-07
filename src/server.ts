@@ -1,10 +1,16 @@
-require('dotenv').config();
-import "reflect-metadata"
+import {createServer} from "http";
+
+require("dotenv").config();
+import "reflect-metadata";
 import App from "./app";
 import {useContainer, useExpressServer} from "routing-controllers";
 import {Container} from "typedi";
 import {GlobalErrorHandler} from "./middlewares/GlobalErrorHandler";
-import {CurrentUserChecker, PreAuthorize} from "./middlewares/JwtFilterMiddleware";
+import {
+    CurrentUserChecker,
+    PreAuthorize
+} from "./middlewares/JwtFilterMiddleware";
+import {Server} from "socket.io";
 
 useContainer(Container);
 
@@ -26,7 +32,7 @@ useExpressServer(app.getServer(), {
     middlewares: [GlobalErrorHandler],
     authorizationChecker: PreAuthorize,
     currentUserChecker: CurrentUserChecker
-})
+});
 
 // connect to database then start server (default port is 8080)
 app.listen();

@@ -14,37 +14,47 @@ import {HttpError, NotFoundError, UnauthorizedError} from "routing-controllers";
 
 @Service()
 export default class AuthService {
-
-    constructor(private accountRepository: AccountRepository,
-                private jwtService: JwtService,
-                private mailSender: MailSender) {
-
-    }
+    constructor(
+        private accountRepository: AccountRepository,
+        private jwtService: JwtService,
+        private mailSender: MailSender
+    ) {}
 
     public login = async (email: string, password: string) => {
         const acc = await this.accountRepository.findByEmail(email);
         if (!acc) {
-            throw new NotFoundError(`Email ${email} not found`)
+            throw new NotFoundError(`Email ${email} not found`);
         }
 
-        const isPasswordCorrect = await this.checkPassword(password, acc.password);
+        const isPasswordCorrect = await this.checkPassword(
+            password,
+            acc.password
+        );
         if (!isPasswordCorrect) {
             throw new UnauthorizedError("Invalid password");
         }
 
-        const {accessToken, refreshToken} = await this.jwtService.createToken(acc);
+        const {accessToken, refreshToken} = await this.jwtService.createToken(
+            acc
+        );
         return {accessToken, refreshToken};
-    }
+    };
 
     public loginWithGoogle = async (googleToken: string) => {
         return {
             accessToken: "",
             refreshToken: ""
-        }
-    }
+        };
+    };
 
-    public reCreateToken = async (accessToken: string, refreshToken: string) => {
-        let isValid = await this.jwtService.isValidToRefreshToken(accessToken, refreshToken);
+    public reCreateToken = async (
+        accessToken: string,
+        refreshToken: string
+    ) => {
+        let isValid = await this.jwtService.isValidToRefreshToken(
+            accessToken,
+            refreshToken
+        );
         if (!isValid) {
             throw new UnauthorizedError("Not eligible to refresh token");
         }
@@ -56,7 +66,7 @@ export default class AuthService {
         }
 
         return await this.jwtService.createToken(acc);
-    }
+    };
 
     public register = async (userData: RegisterDto) => {
         const {email, name, password} = userData;
@@ -84,11 +94,12 @@ export default class AuthService {
             // send activation link
             const activationLink = `${process.env.DOMAIN}/auth/active/${registerToken}`;
             this.mailSender.sendActivationLink(email, activationLink);
-
         } else if (acc.enabled) {
             // email is already in-use
-            throw new HttpError(StatusCodes.CONFLICT, "Email is already existed");
-
+            throw new HttpError(
+                StatusCodes.CONFLICT,
+                "Email is already existed"
+            );
         } else {
             // re-send activation link
             const registerToken = acc.registerToken;
@@ -96,20 +107,28 @@ export default class AuthService {
             this.mailSender.sendActivationLink(email, activationLink);
 
             // send back an error as warning
-            throw new HttpError(StatusCodes.LOCKED, "Please check your email to verify your account!")
+            throw new HttpError(
+                StatusCodes.LOCKED,
+                "Please check your email to verify your account!"
+            );
         }
     };
 
     public encryptPassword = async (password: string) => {
         return await bcrypt.hash(password, 10);
-    }
+    };
 
-    public checkPassword = async (rawPassword: string, encryptedPassword: string) => {
+    public checkPassword = async (
+        rawPassword: string,
+        encryptedPassword: string
+    ) => {
         return await bcrypt.compare(rawPassword, encryptedPassword);
-    }
+    };
 
     public activateAccount = async (registerToken: string) => {
-        const account = await this.accountRepository.findByRegisterToken(registerToken);
+        const account = await this.accountRepository.findByRegisterToken(
+            registerToken
+        );
         if (!account) {
             throw new UnauthorizedError("Invalid register token");
         }
@@ -170,7 +189,6 @@ export default class AuthService {
         if (rfToken.expireDate.getTime() <= Date.now()) {
             throw new HttpError(StatusCodes.GONE, "Token has expired");
         }
-
     };
 
     public resetPassword = async (token: string, password: string) => {
@@ -188,8 +206,10 @@ export default class AuthService {
             await account.save();
             await rfToken.destroy();
         } else {
-            throw new HttpError(StatusCodes.INTERNAL_SERVER_ERROR, "Rftoken null");
+            throw new HttpError(
+                StatusCodes.INTERNAL_SERVER_ERROR,
+                "Rftoken null"
+            );
         }
     };
 }
-

@@ -6,7 +6,6 @@ import {QueryTypes} from "sequelize";
 
 @Service()
 export default class AccountRepository {
-
     public async findByEmail(email: string): Promise<Account | null> {
         return await Account.findOne({
             where: {email: email}
@@ -15,15 +14,18 @@ export default class AccountRepository {
 
     public async findById(userId: number): Promise<Account | null> {
         return await Account.scope("active").findByPk(userId, {
-            include: [{
-                model: Account,
-                as: 'followingMe',
-                attributes: ['id']
-            }, {
-                model: Post,
-                as: 'posts',
-                attributes: ['id']
-            }]
+            include: [
+                {
+                    model: Account,
+                    as: "followingMe",
+                    attributes: ["id"]
+                },
+                {
+                    model: Post,
+                    as: "posts",
+                    attributes: ["id"]
+                }
+            ]
         });
     }
 
@@ -35,7 +37,7 @@ export default class AccountRepository {
 
         let rs = await sequelize.query(query, {
             type: QueryTypes.SELECT,
-            replacements: [userId],
+            replacements: [userId]
         });
 
         return Number(Object.values(rs[0])[0]);
@@ -55,21 +57,27 @@ export default class AccountRepository {
         return Number(Object.values(rs[0])[0]);
     }
 
-    public async findByEmailAndEnable(email: string, enabled: boolean): Promise<Account | null> {
+    public async findByEmailAndEnable(
+        email: string,
+        enabled: boolean
+    ): Promise<Account | null> {
         return await Account.findOne({
             where: {
                 email: email,
                 enabled: enabled
             },
-            include: [{
-                model: Account,
-                as: 'followingMe',
-                attributes: ['id']
-            }, {
-                model: Post,
-                as: 'posts',
-                attributes: ['id']
-            }]
+            include: [
+                {
+                    model: Account,
+                    as: "followingMe",
+                    attributes: ["id"]
+                },
+                {
+                    model: Post,
+                    as: "posts",
+                    attributes: ["id"]
+                }
+            ]
         });
     }
 

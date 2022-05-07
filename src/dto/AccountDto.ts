@@ -2,10 +2,18 @@ import mapper from "js-model-mapper";
 import {plainToClass} from "class-transformer";
 import Account from "../models/Account";
 
-export const accountMapper = mapper([{
-    name: "accountId",
-    from: "id"
-}, 'name', 'email', 'fbLink', 'instagramLink', 'avatarLink', 'about'])
+export const accountMapper = mapper([
+    {
+        name: "accountId",
+        from: "id"
+    },
+    "name",
+    "email",
+    "fbLink",
+    "instagramLink",
+    "avatarLink",
+    "about"
+]);
 
 export class AccountDto {
     // regular
@@ -24,7 +32,6 @@ export class AccountDto {
     followCount: number;
     bookmarkOnOwnPostCount: number;
     commentOnOwnPostCount: number;
-
 
     public static toBasicAccount(entity: Account) {
         const json = accountMapper(entity);

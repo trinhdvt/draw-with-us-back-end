@@ -1,4 +1,11 @@
-import {BelongsTo, Column, ForeignKey, Model, Scopes, Table} from "sequelize-typescript";
+import {
+    BelongsTo,
+    Column,
+    ForeignKey,
+    Model,
+    Scopes,
+    Table
+} from "sequelize-typescript";
 import Account from "./Account";
 import Post from "./Post";
 
@@ -7,7 +14,7 @@ import Post from "./Post";
         where: {
             seen: false
         },
-        order: [['notifyDate', 'DESC']]
+        order: [["notifyDate", "DESC"]]
     }
 }))
 @Table({
@@ -24,7 +31,7 @@ class Notification extends Model {
     @Column
     accountId!: number;
 
-    @BelongsTo(() => Account, 'account_id')
+    @BelongsTo(() => Account, "account_id")
     account!: Account;
 
     @Column
@@ -50,7 +57,7 @@ class Notification extends Model {
     @Column
     sourceAccountId!: number;
 
-    @BelongsTo(() => Account, 'source_account_id')
+    @BelongsTo(() => Account, "source_account_id")
     sourceAccount!: Account;
 }
 

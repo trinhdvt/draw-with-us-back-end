@@ -8,8 +8,7 @@ import {QueryTypes} from "sequelize";
 
 @Service()
 export default class PostRepository {
-    constructor() {
-    }
+    constructor() {}
 
     public async getPostByPublishDate(pageRequest: PageRequest) {
         const {page, size} = pageRequest;
@@ -19,21 +18,21 @@ export default class PostRepository {
             offset: page * size,
             limit: size,
             attributes: {
-                exclude: ["content"],
+                exclude: ["content"]
             },
             order: [[attribute ?? "publishedDate", direction]],
             include: [
                 {
                     model: Account,
                     as: "bookmarkedAccount",
-                    attributes: ["id"],
+                    attributes: ["id"]
                 },
                 {
                     model: Comment,
                     as: "comments",
-                    attributes: ["id"],
-                },
-            ],
+                    attributes: ["id"]
+                }
+            ]
         });
     }
 
@@ -48,21 +47,21 @@ export default class PostRepository {
             offset: page * size,
             limit: size,
             attributes: {
-                exclude: ["content"],
+                exclude: ["content"]
             },
             order: [[attribute ?? "publishedDate", direction]],
             include: [
                 {
                     model: Account,
                     as: "bookmarkedAccount",
-                    attributes: ["id"],
+                    attributes: ["id"]
                 },
                 {
                     model: Comment,
                     as: "comments",
-                    attributes: ["id"],
-                },
-            ],
+                    attributes: ["id"]
+                }
+            ]
         });
     }
 
@@ -79,7 +78,7 @@ export default class PostRepository {
             replacements: [size],
             type: QueryTypes.SELECT,
             model: Post,
-            mapToModel: true,
+            mapToModel: true
         });
 
         for (const p of posts) {
@@ -90,8 +89,8 @@ export default class PostRepository {
     }
 
     public async getPopularPostByCommentCount(size: number) {
-
-        const query = "select p.id,title,published_date,created_date,slug " +
+        const query =
+            "select p.id,title,published_date,created_date,slug " +
             " from post p join comment c on p.id = c.post_id " +
             "where p.status=true " +
             "group by c.post_id " +
@@ -101,18 +100,21 @@ export default class PostRepository {
             replacements: [size],
             type: QueryTypes.SELECT,
             mapToModel: true,
-            model: Post,
+            model: Post
         });
 
         for (const p of posts) {
-            p.comments = await p.$get('comments');
-            p.bookmarkedAccount = await p.$get('bookmarkedAccount');
+            p.comments = await p.$get("comments");
+            p.bookmarkedAccount = await p.$get("bookmarkedAccount");
         }
 
         return posts;
     }
 
-    public async searchPostByKeyword(keyword: string, pageRequest: PageRequest) {
+    public async searchPostByKeyword(
+        keyword: string,
+        pageRequest: PageRequest
+    ) {
         const {page, size} = pageRequest;
 
         const query = `select p.id,
@@ -139,36 +141,44 @@ export default class PostRepository {
         });
 
         for (const p of posts) {
-            p.comments = await p.$get('comments');
-            p.bookmarkedAccount = await p.$get('bookmarkedAccount');
+            p.comments = await p.$get("comments");
+            p.bookmarkedAccount = await p.$get("bookmarkedAccount");
         }
 
         return posts;
     }
 
-    public async findPostByIdAndScope(id: number, scope: 'public' | 'draft' = 'public') {
+    public async findPostByIdAndScope(
+        id: number,
+        scope: "public" | "draft" = "public"
+    ) {
         return await Post.scope(scope).findByPk(id, {
             include: [
                 {
                     model: Account,
                     as: "author",
-                    include: [{
-                        model: Post,
-                        as: 'posts',
-                        attributes: ['id']
-                    }, {
-                        model: Account,
-                        as: "followingMe",
-                        attributes: ['id']
-                    }]
-                }, {
+                    include: [
+                        {
+                            model: Post,
+                            as: "posts",
+                            attributes: ["id"]
+                        },
+                        {
+                            model: Account,
+                            as: "followingMe",
+                            attributes: ["id"]
+                        }
+                    ]
+                },
+                {
                     model: Comment,
-                    as: 'comments',
-                    attributes: ['id']
-                }, {
+                    as: "comments",
+                    attributes: ["id"]
+                },
+                {
                     model: Account,
                     as: "bookmarkedAccount",
-                    attributes: ["id"],
+                    attributes: ["id"]
                 }
             ]
         });
@@ -176,10 +186,12 @@ export default class PostRepository {
 
     public async findPostById(postId: number) {
         return await Post.findByPk(postId, {
-            include: [{
-                model: Account,
-                as: 'author'
-            }]
+            include: [
+                {
+                    model: Account,
+                    as: "author"
+                }
+            ]
         });
     }
 
@@ -188,12 +200,13 @@ export default class PostRepository {
             where: {
                 slug: slug
             },
-            include: [{
-                model: Account,
-                as: 'author',
-                attributes: ['id']
-            }]
+            include: [
+                {
+                    model: Account,
+                    as: "author",
+                    attributes: ["id"]
+                }
+            ]
         });
     }
 }
-

@@ -13,26 +13,24 @@ import BookmarkedPost from "./BookmarkedPost";
 import {Category, PostCategory} from "./Category";
 import {Comment} from "./Comment";
 
-
 @Scopes(() => ({
-    "public": {
+    public: {
         where: {
             status: true
         },
-        order: [['publishedDate', 'DESC']]
+        order: [["publishedDate", "DESC"]]
     },
-    "draft": {
+    draft: {
         where: {
             status: false
         },
-        order: [['createdDate', 'DESC']]
+        order: [["createdDate", "DESC"]]
     }
 }))
 @Table({
     tableName: "post"
 })
 class Post extends Model {
-
     @Column({
         primaryKey: true,
         autoIncrement: true
@@ -75,7 +73,6 @@ class Post extends Model {
 
     @HasMany(() => Comment)
     comments?: Comment[];
-
 }
 
 export default Post;
