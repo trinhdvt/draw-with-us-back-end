@@ -6,7 +6,6 @@ import Post from "./Post";
     tableName: "bookmarked_post"
 })
 class BookmarkedPost extends Model {
-
     @ForeignKey(() => Account)
     @Column({
         primaryKey: true

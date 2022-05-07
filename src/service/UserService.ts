@@ -6,11 +6,12 @@ import Account from "../models/Account";
 
 @Service()
 export default class UserService {
+    constructor(private accRepo: AccountRepository) {}
 
-    constructor(private accRepo: AccountRepository) {
-    }
-
-    public async getUserInfoById(userId: number, curUserId: number | undefined) {
+    public async getUserInfoById(
+        userId: number,
+        curUserId: number | undefined
+    ) {
         const acc = await this.accRepo.findById(userId);
         if (!acc) {
             throw new NotFoundError("Account not found");
@@ -19,7 +20,10 @@ export default class UserService {
         return await this.accountDetailMapping(acc, curUserId);
     }
 
-    public async getUserInfoByEmail(email: string, curUserId: number | undefined) {
+    public async getUserInfoByEmail(
+        email: string,
+        curUserId: number | undefined
+    ) {
         const acc = await this.accRepo.findByEmailAndEnable(email, true);
         if (!acc) {
             throw new NotFoundError("Account not found");
@@ -32,8 +36,11 @@ export default class UserService {
         const accountDto = AccountDto.toBasicAccount(acc);
         accountDto.postCount = acc.posts.length;
         accountDto.followCount = acc.followingMe.length;
-        accountDto.bookmarkOnOwnPostCount = await this.accRepo.countTotalBookmark(acc.id);
-        accountDto.commentOnOwnPostCount = await this.accRepo.countTotalComment(acc.id);
+        accountDto.bookmarkOnOwnPostCount =
+            await this.accRepo.countTotalBookmark(acc.id);
+        accountDto.commentOnOwnPostCount = await this.accRepo.countTotalComment(
+            acc.id
+        );
 
         for (const f of acc.followingMe) {
             if (f.id == curUserId) {
@@ -44,5 +51,4 @@ export default class UserService {
 
         return accountDto;
     }
-
 }

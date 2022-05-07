@@ -1,4 +1,13 @@
-import {BelongsToMany, Column, DataType, HasMany, HasOne, Model, Scopes, Table} from "sequelize-typescript";
+import {
+    BelongsToMany,
+    Column,
+    DataType,
+    HasMany,
+    HasOne,
+    Model,
+    Scopes,
+    Table
+} from "sequelize-typescript";
 import Post from "./Post";
 import BookmarkedPost from "./BookmarkedPost";
 import {Comment, CommentLike} from "./Comment";
@@ -8,7 +17,7 @@ import PasswordResetToken from "./PasswordResetToken";
 import Role from "./Role";
 
 @Scopes(() => ({
-    "active": {
+    active: {
         where: {
             enabled: true
         }
@@ -23,7 +32,6 @@ import Role from "./Role";
     tableName: "account"
 })
 class Account extends Model {
-
     @Column({
         primaryKey: true,
         autoIncrement: true
@@ -75,7 +83,7 @@ class Account extends Model {
     @BelongsToMany(() => Comment, () => CommentLike)
     likedComments?: Comment[];
 
-    @BelongsToMany(() => Account, () => Follow, 'following_account_id')
+    @BelongsToMany(() => Account, () => Follow, "following_account_id")
     followingMe?: Account[];
 
     @HasMany(() => Notification)

@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 
 export default class App {
-
     private readonly app: express.Application;
 
     constructor() {
@@ -12,17 +11,17 @@ export default class App {
     }
 
     public listen() {
-        const port: number = parseInt(process.env.PORT ?? '8888');
+        const port: number = parseInt(process.env.PORT ?? "8888");
 
-        App.initDatabase().then(() => {
-            console.log('Database initialized!')
+        App.initDatabase()
+            .then(() => {
+                console.log("Database initialized!");
 
-            this.app.listen(port, () => {
-                console.log(`Server listening on http://localhost:${port}`);
-            });
-
-        }).catch(err => console.error(`Error when initial database${err}`));
-
+                this.app.listen(port, () => {
+                    console.log(`Server listening on http://localhost:${port}`);
+                });
+            })
+            .catch(err => console.error(`Error when initial database${err}`));
     }
 
     public boostrap() {

@@ -1,11 +1,16 @@
-import {BelongsToMany, Column, ForeignKey, Model, Table} from "sequelize-typescript";
+import {
+    BelongsToMany,
+    Column,
+    ForeignKey,
+    Model,
+    Table
+} from "sequelize-typescript";
 import Post from "./Post";
 
 @Table({
     tableName: "category"
 })
 class Category extends Model {
-
     @Column({
         primaryKey: true,
         autoIncrement: true
@@ -23,7 +28,6 @@ class Category extends Model {
     tableName: "post_category"
 })
 class PostCategory extends Model {
-
     @ForeignKey(() => Post)
     @Column({
         primaryKey: true

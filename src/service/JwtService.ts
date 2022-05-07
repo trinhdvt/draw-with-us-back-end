@@ -19,18 +19,19 @@ export default class JwtService {
             id: account.id,
             email: account.email,
             role: account.role
-        }
-        const accessToken = jwt.sign(payload,
-            this.SECRET_KEY,
-            {
-                expiresIn: this.EXPIRE_TIME
-            });
+        };
+        const accessToken = jwt.sign(payload, this.SECRET_KEY, {
+            expiresIn: this.EXPIRE_TIME
+        });
 
         // const duration = ms(this.EXPIRE_TIME);
 
-        const refreshToken = await this.createRefreshToken(accessToken, account.email);
+        const refreshToken = await this.createRefreshToken(
+            accessToken,
+            account.email
+        );
         return {accessToken, refreshToken};
-    }
+    };
 
     private createRefreshToken = async (accessToken: string, email: string) => {
         const randomString = Math.random().toString(36).substring(2);
@@ -54,20 +55,27 @@ export default class JwtService {
         //
 
         return rfToken;
-    }
+    };
 
-    public isValidToRefreshToken = async (accessToken: string, refreshToken: string) => {
+    public isValidToRefreshToken = async (
+        accessToken: string,
+        refreshToken: string
+    ) => {
         const {email} = this.getPayLoad(accessToken);
         const rfToken = await RefreshToken.findByPk(email);
 
-        return (rfToken != null
-            && rfToken.refreshToken === refreshToken
-            && rfToken.accessToken === accessToken);
-    }
+        return (
+            rfToken != null &&
+            rfToken.refreshToken === refreshToken &&
+            rfToken.accessToken === accessToken
+        );
+    };
 
     public isValidJwt = (token: string, ignoreExpiration: boolean = false) => {
         try {
-            jwt.verify(token, this.SECRET_KEY, {ignoreExpiration: ignoreExpiration});
+            jwt.verify(token, this.SECRET_KEY, {
+                ignoreExpiration: ignoreExpiration
+            });
             return true;
         } catch (err) {
             if (err instanceof TokenExpiredError && !ignoreExpiration) {
@@ -80,18 +88,19 @@ export default class JwtService {
 
     public getPayLoad = (accessToken: string) => {
         try {
-            const decoded = jwt.verify(accessToken, this.SECRET_KEY, {ignoreExpiration: true}) as JwtPayload;
+            const decoded = jwt.verify(accessToken, this.SECRET_KEY, {
+                ignoreExpiration: true
+            }) as JwtPayload;
             let {id, email, role} = decoded;
 
             return {
                 id: Number(id),
                 email: email as string,
                 role: role as string
-            }
+            };
         } catch (e) {
             // invalid token
             throw new ForbiddenError("Invalid token");
         }
-    }
-
+    };
 }

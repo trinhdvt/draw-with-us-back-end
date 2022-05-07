@@ -10,7 +10,7 @@ import PostReport from "./PostReport";
 import RefreshToken from "./RefreshToken";
 import PasswordResetToken from "./PasswordResetToken";
 
-require('dotenv').config();
+require("dotenv").config();
 
 const sequelize = new Sequelize({
     database: process.env.DATABASE_NAME,
@@ -32,12 +32,19 @@ const sequelize = new Sequelize({
     logging: false
 });
 
-sequelize.addModels(
-    [Account, Post, BookmarkedPost,
-        Category, PostCategory,
-        Comment, CommentLike,
-        Follow, Notification, PostReport,
-        RefreshToken, PasswordResetToken]
-);
+sequelize.addModels([
+    Account,
+    Post,
+    BookmarkedPost,
+    Category,
+    PostCategory,
+    Comment,
+    CommentLike,
+    Follow,
+    Notification,
+    PostReport,
+    RefreshToken,
+    PasswordResetToken
+]);
 
 export default sequelize;

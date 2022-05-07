@@ -3,10 +3,18 @@ import mapper from "js-model-mapper";
 import Post from "../models/Post";
 import {plainToClass} from "class-transformer";
 
-export const postMapper = mapper([{
-    name: "postId",
-    from: "id"
-}, 'title', 'slug', 'content', 'postThumbnail', 'publishedDate', 'createdDate'])
+export const postMapper = mapper([
+    {
+        name: "postId",
+        from: "id"
+    },
+    "title",
+    "slug",
+    "content",
+    "postThumbnail",
+    "publishedDate",
+    "createdDate"
+]);
 
 export class PostResponseDto {
     postId: number;
@@ -23,7 +31,6 @@ export class PostResponseDto {
     commentCount: number;
 
     public static toPostResponseDto(entity: Post): PostResponseDto {
-
         const json = postMapper(entity);
         const postDto: PostResponseDto = plainToClass(PostResponseDto, json);
 
@@ -33,4 +40,3 @@ export class PostResponseDto {
         return postDto;
     }
 }
-

@@ -1,11 +1,17 @@
-import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
+import {
+    BelongsTo,
+    Column,
+    DataType,
+    ForeignKey,
+    Model,
+    Table
+} from "sequelize-typescript";
 import Account from "./Account";
 
 @Table({
     tableName: "password_reset_token"
 })
 export default class PasswordResetToken extends Model {
-
     @Column({
         primaryKey: true,
         autoIncrement: true

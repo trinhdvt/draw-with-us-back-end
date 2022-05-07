@@ -11,9 +11,7 @@ import StringUtils from "../utils/StringUtils";
 
 @Service()
 export default class PostService {
-
-    constructor(private postRepo: PostRepository) {
-    }
+    constructor(private postRepo: PostRepository) {}
 
     public async getPostByPublishDate(pageRequest: PageRequest) {
         let pageOfPost = await this.postRepo.getPostByPublishDate(pageRequest);
@@ -26,24 +24,39 @@ export default class PostService {
 
         switch (property) {
             case PopularType.BOOKMARK:
-                pageOfPost = await this.postRepo.getPopularPostByBookmarkCount(size);
+                pageOfPost = await this.postRepo.getPopularPostByBookmarkCount(
+                    size
+                );
 
-                return pageOfPost.map(post => PostResponseDto.toPostResponseDto(post));
+                return pageOfPost.map(post =>
+                    PostResponseDto.toPostResponseDto(post)
+                );
 
             case PopularType.COMMENT:
-                pageOfPost = await this.postRepo.getPopularPostByCommentCount(size);
+                pageOfPost = await this.postRepo.getPopularPostByCommentCount(
+                    size
+                );
 
-                return pageOfPost.map(post => PostResponseDto.toPostResponseDto(post));
+                return pageOfPost.map(post =>
+                    PostResponseDto.toPostResponseDto(post)
+                );
 
             default:
-                throw new HttpError(StatusCodes.UNPROCESSABLE_ENTITY,
-                    "Nonsupport popular type: " + property);
+                throw new HttpError(
+                    StatusCodes.UNPROCESSABLE_ENTITY,
+                    "Nonsupport popular type: " + property
+                );
         }
-
     }
 
-    public async searchPostByKeyword(keyword: string, pageRequest: PageRequest) {
-        let pageOfPost = await this.postRepo.searchPostByKeyword(keyword, pageRequest);
+    public async searchPostByKeyword(
+        keyword: string,
+        pageRequest: PageRequest
+    ) {
+        let pageOfPost = await this.postRepo.searchPostByKeyword(
+            keyword,
+            pageRequest
+        );
 
         return pageOfPost.map(post => PostResponseDto.toPostResponseDto(post));
     }
@@ -64,8 +77,7 @@ export default class PostService {
         postDto.author = authorDto;
         postDto.isOwner = authorDto.accountId == loggedInId;
         for (const acc of post.bookmarkedAccount) {
-            if (acc.id == loggedInId)
-                postDto.isBookmarked = true;
+            if (acc.id == loggedInId) postDto.isBookmarked = true;
         }
 
         return postDto;
@@ -84,7 +96,11 @@ export default class PostService {
         return PostResponseDto.toPostResponseDto(post);
     }
 
-    public async addNewPostOrDraft(requestDto: PostRequestDto, authorId: number, isPublic: boolean) {
+    public async addNewPostOrDraft(
+        requestDto: PostRequestDto,
+        authorId: number,
+        isPublic: boolean
+    ) {
         const {title, content, postThumbnail} = requestDto;
 
         let post = Post.build({
@@ -105,7 +121,11 @@ export default class PostService {
         return {slug: post.slug};
     }
 
-    public async updatePostById(postId: number, requestDto: PostRequestDto, userId: number) {
+    public async updatePostById(
+        postId: number,
+        requestDto: PostRequestDto,
+        userId: number
+    ) {
         const post = await this.postRepo.findPostById(postId);
         if (!post) {
             throw new NotFoundError("Post not found");
@@ -146,7 +166,7 @@ export default class PostService {
     }
 
     public async getDraftById(draftId: number, authorId: number) {
-        const post = await this.postRepo.findPostByIdAndScope(draftId, 'draft');
+        const post = await this.postRepo.findPostByIdAndScope(draftId, "draft");
         if (!post) {
             throw new NotFoundError("Draft not found");
         }
@@ -158,7 +178,11 @@ export default class PostService {
         return PostResponseDto.toPostResponseDto(post);
     }
 
-    public async updateDraftById(draftId: number, requestDto: PostRequestDto, authorId: number) {
+    public async updateDraftById(
+        draftId: number,
+        requestDto: PostRequestDto,
+        authorId: number
+    ) {
         const post = await this.postRepo.findPostById(draftId);
         if (!post) {
             throw new NotFoundError("No draft found");
@@ -180,9 +204,11 @@ export default class PostService {
     }
 
     public async getPostByUserId(userId: number, pageRequest: PageRequest) {
-        const pageOfPost = await this.postRepo.getPostOfUser(userId, pageRequest);
+        const pageOfPost = await this.postRepo.getPostOfUser(
+            userId,
+            pageRequest
+        );
 
         return pageOfPost.map(post => PostResponseDto.toPostResponseDto(post));
     }
 }
-

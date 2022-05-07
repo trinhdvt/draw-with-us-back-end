@@ -1,5 +1,12 @@
 import {Service} from "typedi";
-import {BodyParam, Get, HttpCode, JsonController, Post, Res} from "routing-controllers";
+import {
+    BodyParam,
+    Get,
+    HttpCode,
+    JsonController,
+    Post,
+    Res
+} from "routing-controllers";
 import {StatusCodes} from "http-status-codes";
 import FormData from "form-data";
 import axios from "axios";
@@ -8,7 +15,6 @@ import {Response} from "express";
 @Service()
 @JsonController()
 export default class HelloController {
-
     @Get("/")
     @HttpCode(StatusCodes.OK)
     async greeting() {
@@ -16,8 +22,7 @@ export default class HelloController {
     }
 
     @Post("/predict")
-    async predict(@BodyParam("data") data: string,
-                  @Res() response: Response) {
+    async predict(@BodyParam("data") data: string, @Res() response: Response) {
         data = data.split(",")[1];
         const buffer = Buffer.from(data, "base64");
         const form = new FormData();
@@ -32,8 +37,6 @@ export default class HelloController {
             console.log(e);
         }
 
-        return response.status(200).json({"message": "OK"});
+        return response.status(200).json({message: "OK"});
     }
-
-
 }

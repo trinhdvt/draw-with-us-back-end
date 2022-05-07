@@ -5,7 +5,6 @@ import Account from "./Account";
     tableName: "following_relationship"
 })
 class Follow extends Model {
-
     @ForeignKey(() => Account)
     @Column({
         primaryKey: true
