@@ -1,7 +1,5 @@
-import {createServer} from "http";
-
-require("dotenv").config();
 import "reflect-metadata";
+import "dotenv/config";
 import App from "./app";
 import {useContainer, useExpressServer} from "routing-controllers";
 import {Container} from "typedi";
@@ -34,5 +32,9 @@ useExpressServer(app.getServer(), {
     currentUserChecker: CurrentUserChecker
 });
 
-// connect to database then start server (default port is 8080)
-app.listen();
+// connect to database then start server
+const io = new Server(app.httpServer);
+io.on("connection", () => {
+    console.log("Socket connected");
+});
+app.start();
