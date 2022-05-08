@@ -2,26 +2,35 @@ import express from "express";
 import sequelize from "./models";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import {Sequelize} from "sequelize-typescript";
+import {createServer, Server} from "http";
 
 export default class App {
     private readonly app: express.Application;
+    public readonly database: Sequelize;
+    public readonly httpServer: Server;
+    public readonly port: number;
+    public readonly host: string;
 
     constructor() {
         this.app = express();
+        this.database = sequelize;
+        this.httpServer = createServer(this.app);
+        this.port = parseInt(process.env.PORT ?? "8888");
+        this.host = process.env.HOST ?? "localhost";
     }
 
-    public listen() {
-        const port: number = parseInt(process.env.PORT ?? "8888");
-
-        App.initDatabase()
+    public start() {
+        this.database
+            .sync()
             .then(() => {
-                console.log("Database initialized!");
+                console.info("Database initialized!");
 
-                this.app.listen(port, () => {
-                    console.log(`Server listening on http://localhost:${port}`);
+                this.httpServer.listen(this.port, this.host, () => {
+                    console.info(`Server on http://${this.host}:${this.port}`);
                 });
             })
-            .catch(err => console.error(`Error when initial database${err}`));
+            .catch(err => console.error(err));
     }
 
     public boostrap() {
@@ -32,9 +41,5 @@ export default class App {
 
     public getServer(): express.Application {
         return this.app;
-    }
-
-    private static async initDatabase() {
-        // await sequelize.sync();
     }
 }

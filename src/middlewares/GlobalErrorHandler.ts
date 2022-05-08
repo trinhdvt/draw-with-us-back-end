@@ -10,7 +10,7 @@ export class GlobalErrorHandler implements ExpressErrorMiddlewareInterface {
         response: any,
         next: (err?: any) => any
     ): void {
-        console.log(`ERROR: ${JSON.stringify(error)}`);
+        console.error(`ERROR: ${JSON.stringify(error)}`);
 
         return response.status(error.httpCode ?? 500).json(error);
     }

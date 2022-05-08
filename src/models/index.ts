@@ -1,16 +1,6 @@
 import {Sequelize} from "sequelize-typescript";
-import Account from "./Account";
-import Post from "./Post";
-import BookmarkedPost from "./BookmarkedPost";
-import {Category, PostCategory} from "./Category";
-import {Comment, CommentLike} from "./Comment";
-import Follow from "./FollowRelationship";
-import Notification from "./Notification";
-import PostReport from "./PostReport";
-import RefreshToken from "./RefreshToken";
-import PasswordResetToken from "./PasswordResetToken";
 
-require("dotenv").config();
+import "dotenv/config";
 
 const sequelize = new Sequelize({
     database: process.env.DATABASE_NAME,
@@ -19,10 +9,10 @@ const sequelize = new Sequelize({
     host: process.env.DATABASE_HOST,
     dialect: "mysql",
     pool: {
-        max: 5,
+        max: 10,
         min: 0,
-        acquire: 3000,
-        idle: 10000
+        acquire: 30000,
+        idle: 300000
     },
     benchmark: true,
     define: {
@@ -32,19 +22,6 @@ const sequelize = new Sequelize({
     logging: false
 });
 
-sequelize.addModels([
-    Account,
-    Post,
-    BookmarkedPost,
-    Category,
-    PostCategory,
-    Comment,
-    CommentLike,
-    Follow,
-    Notification,
-    PostReport,
-    RefreshToken,
-    PasswordResetToken
-]);
+sequelize.addModels([__dirname + "/*.model.ts"]);
 
 export default sequelize;
