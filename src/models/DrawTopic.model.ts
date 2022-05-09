@@ -3,7 +3,6 @@ import {
     Column,
     HasMany,
     Model,
-    PrimaryKey,
     Table
 } from "sequelize-typescript";
 import TopicSample from "./TopicSample.model";
@@ -14,7 +13,9 @@ import CollectionTopic from "./CollectionTopic.model";
     tableName: "draw_topic"
 })
 export default class DrawTopic extends Model {
-    @PrimaryKey
+    @Column({
+        primaryKey: true
+    })
     id: number;
 
     @Column

@@ -22,6 +22,5 @@ const sequelize = new Sequelize({
     logging: false
 });
 
-sequelize.addModels([__dirname + "/*.model.ts"]);
-
+sequelize.addModels([__dirname + "/*.model.{ts,js}"]);
 export default sequelize;
