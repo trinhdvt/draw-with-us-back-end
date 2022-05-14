@@ -4,11 +4,9 @@ import App from "./app";
 import {useContainer, useExpressServer} from "routing-controllers";
 import {Container} from "typedi";
 import {GlobalErrorHandler} from "./middlewares/GlobalErrorHandler";
-import {
-    CurrentUserChecker,
-    PreAuthorize
-} from "./middlewares/JwtFilterMiddleware";
+import {CurrentUserChecker, PreAuthorize} from "./middlewares/JwtFilterMiddleware";
 import {Server} from "socket.io";
+import registerGreetingHandler from "./handler/GreetingHandler";
 
 useContainer(Container);
 
@@ -34,7 +32,8 @@ useExpressServer(app.getServer(), {
 
 // connect to database then start server
 const io = new Server(app.httpServer);
-io.on("connection", () => {
-    console.log("Socket connected");
+io.on("connection", socket => {
+    registerGreetingHandler(io, socket);
 });
+
 app.start();
