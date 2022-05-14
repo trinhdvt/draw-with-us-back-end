@@ -14,7 +14,7 @@ export default class App {
     public readonly httpServer: Server;
     public readonly port: number;
     public readonly host: string;
-    private readonly corsOptions: CorsOptions;
+    public readonly corsOptions: CorsOptions;
     private readonly logPattern: string;
 
     constructor() {
