@@ -30,10 +30,13 @@ useExpressServer(app.getServer(), {
     currentUserChecker: CurrentUserChecker
 });
 
-// connect to database then start server
-const io = new Server(app.httpServer);
+// register socket.io
+const io = new Server(app.httpServer, {
+    cors: app.corsOptions
+});
 io.on("connection", socket => {
     registerGreetingHandler(io, socket);
 });
 
+// connect to db then start the server
 app.start();

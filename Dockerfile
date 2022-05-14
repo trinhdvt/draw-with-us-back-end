@@ -18,8 +18,9 @@ WORKDIR /app
 
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/.env .
-RUN npm install --only=production && npm install pm2 -g
+RUN npm install --only=production --legacy-peer-deps && npm install pm2 -g
 
 COPY --from=builder /app/target target
 
+ENV NODE_ENV="production"
 CMD ["pm2-runtime", "./target/server.js"]
