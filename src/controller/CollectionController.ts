@@ -4,7 +4,7 @@ import {StatusCodes} from "http-status-codes";
 import CollectionServices from "../service/CollectionServices";
 
 @Service()
-@JsonController("/collection")
+@JsonController("/collections")
 export default class CollectionController {
     @Inject()
     private services: CollectionServices;
