@@ -1,34 +1,17 @@
-import {Inject, Service} from "typedi";
-import {
-    BodyParam,
-    Get,
-    HttpCode,
-    JsonController,
-    Post,
-    Res
-} from "routing-controllers";
+import {Service} from "typedi";
+import {BodyParam, Get, HttpCode, JsonController, Post, Res} from "routing-controllers";
 import {StatusCodes} from "http-status-codes";
 import FormData from "form-data";
 import axios from "axios";
 import {Response} from "express";
-import TopicRepository from "../repository/TopicRepository";
 
 @Service()
 @JsonController()
 export default class HelloController {
-    @Inject()
-    private topicRepo: TopicRepository;
-
     @Get("/")
     @HttpCode(StatusCodes.OK)
     async greeting() {
         return {message: "Hello World"};
-    }
-
-    @Get("/topic")
-    @HttpCode(StatusCodes.OK)
-    async getAllTopic() {
-        return await this.topicRepo.all({raw: true});
     }
 
     @Post("/predict")

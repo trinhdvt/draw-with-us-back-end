@@ -11,7 +11,7 @@ import morgan from "morgan";
 export default class App {
     private readonly app: express.Application;
     public readonly database: Sequelize;
-    public readonly httpServer: Server;
+    public httpServer: Server;
     public readonly port: number;
     public readonly host: string;
     public readonly corsOptions: CorsOptions;
@@ -24,7 +24,7 @@ export default class App {
         this.port = parseInt(process.env.PORT ?? "8888");
         this.host = process.env.HOST ?? "localhost";
         this.corsOptions = {
-            origin: ["*"],
+            origin: "*",
             methods: ["GET", "POST", "PUT", "DELETE"]
         };
         this.logPattern = ":remote-addr [:date[clf]] :method :url :status - :response-time ms";
@@ -36,8 +36,11 @@ export default class App {
             .then(() => {
                 console.info("Database initialized!");
 
-                this.httpServer.listen(this.port, this.host, () => {
+                this.httpServer = this.httpServer.listen(this.port, this.host, () => {
                     console.info(`Server on http://${this.host}:${this.port}`);
+
+                    process.on("SIGINT", () => this.httpServer.close());
+                    process.on("SIGTERM", () => this.httpServer.close());
                 });
             })
             .catch(err => console.error(err));
