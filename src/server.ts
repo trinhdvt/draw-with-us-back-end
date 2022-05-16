@@ -23,6 +23,10 @@ useExpressServer(app.getServer(), {
             required: true
         }
     },
+    classTransformer: true,
+    plainToClassTransformOptions: {
+        enableImplicitConversion: true
+    },
     routePrefix: "/api",
     controllers: [__dirname + "/controller/*.js"],
     middlewares: [GlobalErrorHandler],

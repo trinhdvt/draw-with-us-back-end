@@ -7,6 +7,7 @@ import {createServer, Server} from "http";
 import cors, {CorsOptions} from "cors";
 import compression from "compression";
 import morgan from "morgan";
+import RedisClient from "./redis";
 
 export default class App {
     private readonly app: express.Application;
@@ -39,8 +40,14 @@ export default class App {
                 this.httpServer = this.httpServer.listen(this.port, this.host, () => {
                     console.info(`Server on http://${this.host}:${this.port}`);
 
-                    process.on("SIGINT", () => this.httpServer.close());
-                    process.on("SIGTERM", () => this.httpServer.close());
+                    process.on("SIGINT", async () => {
+                        this.httpServer.close();
+                        await RedisClient.closeClient();
+                    });
+                    process.on("SIGTERM", async () => {
+                        this.httpServer.close();
+                        await RedisClient.closeClient();
+                    });
                 });
             })
             .catch(err => console.error(err));
