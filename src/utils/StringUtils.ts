@@ -1,6 +1,19 @@
 import {randomUUID} from "crypto";
 
+import {uniqueNamesGenerator, Config, adjectives, names} from "unique-names-generator";
+
 export default class StringUtils {
+    public static randomName(length: number = 2) {
+        const customConfig: Config = {
+            dictionaries: [adjectives, names],
+            separator: "",
+            length: length,
+            style: "capital"
+        };
+
+        return uniqueNamesGenerator(customConfig);
+    }
+
     public static randomString(length: number) {
         const charSet = [..."abcdefghijklmnopqrstuvwxyz"];
         let arr = Array.from(
