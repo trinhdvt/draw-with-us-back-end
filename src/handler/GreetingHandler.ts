@@ -1,13 +1,13 @@
 import {IOType, SocketType} from "../interfaces/SocketIO";
 import UserRepo from "../redis/models/User.redis";
 import StringUtils from "../utils/StringUtils";
+import logger from "../utils/Logger";
 
 const registerGreetingHandler = (io: IOType, socket: SocketType) => {
     const sid = socket.id;
-    console.log(`Client connected ${sid}`);
+    logger.info(`Client connected with id: ${sid}`);
 
-    socket.on("message", (message: string) => {
-        console.log(`Message received: ${message}`);
+    socket.on("message", () => {
         io.emit("greeting", "We have new member");
     });
 
@@ -37,7 +37,7 @@ const registerGreetingHandler = (io: IOType, socket: SocketType) => {
     });
 
     socket.on("disconnect", async () => {
-        console.log(`Client disconnected ${sid}`);
+        logger.info(`Client disconnected with id: ${sid}`);
 
         const userRepo = await UserRepo();
         const user = await userRepo.search().where("sid").eq(sid).returnFirst();

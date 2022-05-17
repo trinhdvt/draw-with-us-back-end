@@ -8,6 +8,7 @@ import cors, {CorsOptions} from "cors";
 import compression from "compression";
 import morgan from "morgan";
 import RedisClient from "./redis";
+import logger from "./utils/Logger";
 
 export default class App {
     private readonly app: express.Application;
@@ -35,22 +36,24 @@ export default class App {
         this.database
             .sync()
             .then(() => {
-                console.info("Database initialized!");
+                logger.info("Database initialized!");
 
                 this.httpServer = this.httpServer.listen(this.port, this.host, () => {
-                    console.info(`Server on http://${this.host}:${this.port}`);
+                    logger.info(`Server started at http://${this.host}:${this.port}`);
 
-                    process.on("SIGINT", async () => {
-                        this.httpServer.close();
+                    const gracefulShutdown = async () => {
                         await RedisClient.closeClient();
-                    });
-                    process.on("SIGTERM", async () => {
-                        this.httpServer.close();
-                        await RedisClient.closeClient();
-                    });
+                        this.httpServer.close(() => {
+                            logger.info("Server stopped");
+                            process.exit(0);
+                        });
+                    };
+                    
+                    process.on("SIGINT", gracefulShutdown);
+                    process.on("SIGTERM", gracefulShutdown);
                 });
             })
-            .catch(err => console.error(err));
+            .catch(err => logger.error(err));
     }
 
     public boostrap() {
