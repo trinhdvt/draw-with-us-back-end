@@ -6,6 +6,7 @@ interface RoomRedis {
     hostId: string;
     userId: string[];
     collectionId: string;
+    collectionName: string;
     timeOut: number;
     maxUsers: number;
 }
@@ -13,15 +14,18 @@ interface RoomRedis {
 class RoomRedis extends Entity {}
 
 const RoomSchema = new Schema(RoomRedis, {
-    roomId: {type: "string"},
     hostId: {type: "string"},
     userId: {type: "string[]"},
     collectionId: {type: "string"},
+    collectionName: {type: "string"},
     timeOut: {type: "number"},
     maxUsers: {type: "number"}
 });
+
 const RoomRepo = async () => {
-    return (await RedisClient.getClient()).fetchRepository(RoomSchema);
+    const repo = (await RedisClient.getClient()).fetchRepository(RoomSchema);
+    await repo.createIndex();
+    return repo;
 };
 
 export default RoomRepo;

@@ -6,8 +6,14 @@ enum CollectionType {
     YOUR,
     OFFICIAL
 }
+interface ICollection {
+    id: number | string;
+    name: string;
+    type: CollectionType;
+    thumbnail: string;
+}
 
-class CollectionDto {
+class CollectionDto implements ICollection {
     id: number;
     name: string;
     type: CollectionType;
@@ -27,3 +33,4 @@ class CollectionDto {
 }
 
 export default CollectionDto;
+export type {ICollection};
