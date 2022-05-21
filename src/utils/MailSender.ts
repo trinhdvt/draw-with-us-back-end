@@ -26,9 +26,7 @@ export default class MailSender {
 
     public sendActivationLink = (email: string, activationLink: string) => {
         const subject = "Registration Confirmation";
-        const text =
-            "Please follow this link to verify your account!\r\n" +
-            activationLink;
+        const text = "Please follow this link to verify your account!\r\n" + activationLink;
 
         this.sendEmail(email, subject, text);
     };
@@ -57,9 +55,7 @@ export default class MailSender {
 
     sendResetPwdLink(email: string, resetPwdLink: string) {
         const subject = "Reset Password";
-        const text =
-            "Please follow this link to reset your password!\r\n" +
-            resetPwdLink;
+        const text = "Please follow this link to reset your password!\r\n" + resetPwdLink;
 
         this.sendEmail(email, subject, text);
     }

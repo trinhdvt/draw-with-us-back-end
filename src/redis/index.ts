@@ -20,6 +20,10 @@ class RedisClient {
             await RedisClient.client.close();
         }
     }
+
+    public static async exec(command: Array<string | number | boolean>) {
+        return RedisClient.client.execute(command);
+    }
 }
 
 export default RedisClient;

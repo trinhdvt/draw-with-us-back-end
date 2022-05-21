@@ -26,7 +26,7 @@ export default class App {
         this.port = parseInt(process.env.PORT ?? "8888");
         this.host = process.env.HOST ?? "localhost";
         this.corsOptions = {
-            origin: ["/https:\/\/(\w+\.)*trinhdvt\.tech$/", "http://localhost:3000"],
+            origin: "*",
             methods: ["GET", "POST", "PUT", "DELETE"]
         };
         this.logPattern = ":remote-addr [:date[clf]] :method :url :status - :response-time ms";
@@ -48,7 +48,7 @@ export default class App {
                             process.exit(0);
                         });
                     };
-                    
+
                     process.on("SIGINT", gracefulShutdown);
                     process.on("SIGTERM", gracefulShutdown);
                 });

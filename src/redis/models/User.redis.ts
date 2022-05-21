@@ -21,3 +21,4 @@ const UserRepo = async () => {
 };
 
 export default UserRepo;
+export type {UserRedis};

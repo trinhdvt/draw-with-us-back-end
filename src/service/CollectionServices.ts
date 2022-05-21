@@ -5,8 +5,7 @@ import {NotFoundError} from "routing-controllers";
 
 @Service()
 class CollectionServices {
-    constructor() {
-    }
+    constructor() {}
 
     async getAll() {
         const collections = await Collection.findAll();
@@ -21,7 +20,6 @@ class CollectionServices {
 
         return new CollectionDto(collection);
     }
-
 
     async getByIds(ids: string[]) {
         const collections = await Collection.findAll({

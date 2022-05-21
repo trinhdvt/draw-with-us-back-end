@@ -1,6 +1,9 @@
 import {IUser} from "./UserDto";
 
 interface RoomResponse {
+    /**
+     * Alias for EntityId
+     */
     id: string;
     timeOut: number;
     maxUsers: number;
