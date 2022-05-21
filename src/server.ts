@@ -5,8 +5,7 @@ import {useContainer, useExpressServer} from "routing-controllers";
 import {Container} from "typedi";
 import {GlobalErrorHandler} from "./middlewares/GlobalErrorHandler";
 import {CurrentUserChecker, PreAuthorize} from "./middlewares/JwtFilterMiddleware";
-import {Server} from "socket.io";
-import registerGreetingHandler from "./handler/GreetingHandler";
+import SocketServer from "./SocketServer";
 
 useContainer(Container);
 
@@ -35,12 +34,7 @@ useExpressServer(app.getServer(), {
 });
 
 // register socket.io
-const io = new Server(app.httpServer, {
-    cors: app.corsOptions
-});
-io.on("connection", socket => {
-    registerGreetingHandler(io, socket);
-});
+new SocketServer(app.httpServer, app.corsOptions);
 
 // connect to db then start the server
 app.start();

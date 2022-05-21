@@ -3,11 +3,11 @@ import RoomRequest from "../dto/request/RoomRequest";
 import RoomResponse from "../dto/response/RoomResponse";
 import RoomRepo from "../redis/models/Room.redis";
 import CollectionServices from "./CollectionServices";
+import {HttpError, NotFoundError} from "routing-controllers";
 
 @Service()
 export default class RoomServices {
-    constructor() {
-    }
+    constructor() {}
 
     @Inject()
     private collectionServices: CollectionServices;
@@ -53,5 +53,26 @@ export default class RoomServices {
         }
 
         return response;
+    }
+
+    /**
+     * Add user to room (redis-only)
+     * @param sid - User's socket id
+     * @param roomId - Room's entity ID
+     */
+    async joinRoom(sid: string, roomId: string) {
+        const roomRepo = await RoomRepo();
+
+        const room = await roomRepo.fetch(roomId);
+        if (!room) {
+            throw new NotFoundError("Room not found");
+        }
+
+        if (room.userId.length == room.maxUsers) {
+            throw new HttpError(400, "Room is full");
+        }
+
+        room.userId.push(sid);
+        await roomRepo.save(room);
     }
 }

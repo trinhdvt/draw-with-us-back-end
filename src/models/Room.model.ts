@@ -1,11 +1,4 @@
-import {
-    BelongsTo,
-    BelongsToMany,
-    Column,
-    ForeignKey,
-    Model,
-    Table
-} from "sequelize-typescript";
+import {BelongsTo, BelongsToMany, Column, ForeignKey, Model, Table} from "sequelize-typescript";
 import User from "./User.model";
 import Collection from "./Collection.model";
 import RoomPlayer from "./RoomPlayer.model";
