@@ -7,14 +7,14 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
     const sid = socket.id;
     const roomServices = Container.get(RoomServices);
 
-    socket.on("room:join", async (roomId, callback) => {
+    socket.on("room:join", async (eid, callback) => {
         try {
-            await roomServices.joinRoom(sid, roomId);
+            const roomId = await roomServices.joinRoom(sid, eid);
             callback({
                 roomId: roomId
             });
 
-            logger.debug(`Client ${sid} joined room ${roomId}`);
+            logger.debug(`Client ${sid} joined room ${eid}`);
 
             socket.emit("room:update");
         } catch (e) {

@@ -1,5 +1,5 @@
 import {randomUUID} from "crypto";
-
+import {nanoid} from "nanoid";
 import {uniqueNamesGenerator, Config, adjectives, names} from "unique-names-generator";
 
 export default class StringUtils {
@@ -12,6 +12,10 @@ export default class StringUtils {
         };
 
         return uniqueNamesGenerator(customConfig);
+    }
+
+    public static randomId(length: number = 8) {
+        return nanoid(length);
     }
 
     public static randomString(length: number) {

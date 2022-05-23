@@ -7,6 +7,7 @@ interface RoomRedis {
     userId: string[];
     collectionId: string;
     collectionName: string;
+    topics: string[];
     timeOut: number;
     maxUsers: number;
 }
@@ -19,7 +20,9 @@ const RoomSchema = new Schema(RoomRedis, {
     collectionId: {type: "string"},
     collectionName: {type: "string"},
     timeOut: {type: "number"},
-    maxUsers: {type: "number"}
+    maxUsers: {type: "number"},
+    roomId: {type: "string"},
+    topics: {type: "string[]"}
 });
 
 const RoomRepo = async () => {
