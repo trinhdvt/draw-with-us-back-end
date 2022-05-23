@@ -4,6 +4,7 @@ interface RoomResponse {
     /**
      * Alias for EntityId
      */
+    eid: string;
     id: string;
     timeOut: number;
     maxUsers: number;
