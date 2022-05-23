@@ -5,6 +5,7 @@ import registerUserHandler from "./handler/UserHandler";
 import {CorsOptions} from "cors";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import registerRoomHandler from "./handler/RoomHandler";
+import registerGameHandler from "./handler/GameHandler";
 
 type IOType = Server<DefaultEventsMap, DefaultEventsMap>;
 type SocketType = Socket<DefaultEventsMap, DefaultEventsMap>;
@@ -23,6 +24,7 @@ export default class SocketServer {
         this.io.on("connection", socket => {
             registerUserHandler(this.io, socket);
             registerRoomHandler(this.io, socket);
+            registerGameHandler(this.io, socket);
         });
     }
 }

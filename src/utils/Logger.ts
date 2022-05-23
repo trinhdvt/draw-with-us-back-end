@@ -8,7 +8,9 @@ const logger = createLogger({
         }),
         format.colorize(),
         format.printf(log => {
-            return `[${log.timestamp}] [${log.level}]: ${log.stack ? log.stack : log.message}`;
+            return `[${log.timestamp}] [${log.level}]: ${
+                log.stack ? log.stack : JSON.stringify(log.message)
+            }`;
         })
     ),
     transports: [new transports.Console()]

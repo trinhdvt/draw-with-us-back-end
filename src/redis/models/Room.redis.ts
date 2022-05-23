@@ -1,6 +1,11 @@
 import {Entity, Schema} from "redis-om";
 import RedisClient from "../index";
 
+enum RoomStatus {
+    WAITING = "waiting",
+    PLAYING = "playing"
+}
+
 interface RoomRedis {
     roomId: string;
     hostId: string;
@@ -10,6 +15,7 @@ interface RoomRedis {
     topics: string[];
     timeOut: number;
     maxUsers: number;
+    status: RoomStatus;
 }
 
 class RoomRedis extends Entity {}
@@ -22,7 +28,8 @@ const RoomSchema = new Schema(RoomRedis, {
     timeOut: {type: "number"},
     maxUsers: {type: "number"},
     roomId: {type: "string"},
-    topics: {type: "string[]"}
+    topics: {type: "string[]"},
+    status: {type: "string"}
 });
 
 const RoomRepo = async () => {
@@ -32,3 +39,4 @@ const RoomRepo = async () => {
 };
 
 export default RoomRepo;
+export {RoomStatus};

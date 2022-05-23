@@ -1,12 +1,12 @@
 import {Inject, Service} from "typedi";
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomResponse from "../dto/response/RoomResponse";
-import RoomRepo from "../redis/models/Room.redis";
+import RoomRepo, {RoomStatus} from "../redis/models/Room.redis";
 import CollectionServices from "./CollectionServices";
 import {HttpError, NotFoundError} from "routing-controllers";
 import StringUtils from "../utils/StringUtils";
 import Collection from "../models/Collection.model";
-import DrawTopic from "../models/DrawTopic.model";
+import RoomConfig from "../dto/response/RoomConfig";
 
 @Service()
 export default class RoomServices {
@@ -34,7 +34,8 @@ export default class RoomServices {
             userId: [sid],
             collectionId: collection.id,
             collectionName: collection.name,
-            topics: topics.map(topic => topic.nameVi)
+            topics: topics.map(topic => topic.nameVi),
+            status: RoomStatus.WAITING
         });
 
         return room.toJSON();
@@ -81,9 +82,39 @@ export default class RoomServices {
             throw new HttpError(400, "Room is full");
         }
 
-        room.userId.push(sid);
+        if (room.userId.indexOf(sid) == -1) {
+            room.userId.push(sid);
+        }
         await roomRepo.save(room);
-        
+
         return room.roomId;
+    }
+
+    /**
+     * Return room's config
+     * @param sid - Player's socket id
+     * @param roomId - Room's ID
+     */
+    async getRoom(sid: string, roomId: string): Promise<RoomConfig> {
+        const roomRepo = await RoomRepo();
+
+        const room = await roomRepo.search().where("roomId").eq(roomId).first();
+        if (room.userId.indexOf(sid) == -1) {
+            throw new HttpError(400, "You are not in this room");
+        }
+
+        return {
+            collectionName: room.collectionName,
+            currentUsers: room.userId.length,
+            id: room.roomId,
+            maxUsers: room.maxUsers,
+            status: room.status,
+            timeOut: room.timeOut,
+            eid: room.entityId,
+            host: {
+                id: room.hostId,
+                name: "trinity"
+            }
+        };
     }
 }
