@@ -12,8 +12,8 @@ export default class RoomController {
 
     @Post("/rooms")
     @HttpCode(StatusCodes.OK)
-    async createRoom(@Body() roomDto: RoomRequest) {
-        return await this.services.create(roomDto);
+    async createRoom(@Body() roomDto: RoomRequest, @HeaderParam("X-EID") eid: string) {
+        return await this.services.create(eid, roomDto);
     }
 
     @Get("/rooms")
@@ -26,5 +26,11 @@ export default class RoomController {
     @HttpCode(StatusCodes.OK)
     async roomConfig(@Param("roomId") roomId: string, @HeaderParam("X-SID") sid: string) {
         return await this.services.getRoom(sid, roomId);
+    }
+
+    @Get("/room/:roomId/players")
+    @HttpCode(StatusCodes.OK)
+    async getPlayers(@Param("roomId") roomId: string, @HeaderParam("X-SID") sid: string) {
+        return await this.services.getPlayers(roomId, sid);
     }
 }

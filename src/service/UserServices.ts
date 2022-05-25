@@ -1,10 +1,14 @@
-import {Service} from "typedi";
+import {Inject, Service} from "typedi";
 import UserRepo, {UserRedis} from "../redis/models/User.redis";
 import ms from "ms";
 import {EntityData} from "redis-om";
+import RoomServices from "./RoomServices";
 
 @Service()
 export default class UserServices {
+    @Inject()
+    private roomServices: RoomServices;
+
     /**
      * Create anonymous user and store in Redis
      * @param data - User's data. See {@link UserRedis}
@@ -22,7 +26,7 @@ export default class UserServices {
     }
 
     /**
-     * Remove anonymous user from Redis
+     * Remove anonymous user from Redis. User also be removed from playing room.
      * @param sid - User's socket id
      */
     async removeAnonymousUser(sid: string) {
@@ -31,16 +35,18 @@ export default class UserServices {
         if (user) {
             await userRepo.remove(user.entityId);
         }
+
+        await this.roomServices.removePlayer(sid);
     }
 
     /**
      * Update user's name
-     * @param id - User's entity ID
+     * @param eid - User's entity ID
      * @param name - New user's name
      */
-    async updateAnonymousUser(id: string, name: string) {
+    async updateAnonymousUser(eid: string, name: string) {
         const userRepo = await UserRepo();
-        const user = await userRepo.fetch(id);
+        const user = await userRepo.fetch(eid);
         if (user) {
             user.name = name;
             await userRepo.save(user);

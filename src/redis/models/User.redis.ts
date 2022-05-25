@@ -4,13 +4,15 @@ import RedisClient from "..";
 interface UserRedis {
     name: string;
     sid: string;
+    point: number;
 }
 
 class UserRedis extends Entity {}
 
 const UserSchema = new Schema(UserRedis, {
     name: {type: "string"},
-    sid: {type: "string"}
+    sid: {type: "string"},
+    point: {type: "number"}
 });
 
 const UserRepo = async () => {
