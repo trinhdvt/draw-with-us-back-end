@@ -1,13 +1,13 @@
-import {IOType, SocketType} from "../SocketServer";
+import {IOType, SocketType} from "../SocketEvent";
 import {Container} from "typedi";
-import RoomServices from "../service/RoomServices";
-import logger from "../utils/Logger";
+import RoomServices from "../../service/RoomServices";
+import logger from "../../utils/Logger";
 
 const registerRoomHandler = (io: IOType, socket: SocketType) => {
     const sid = socket.id;
     const roomServices = Container.get(RoomServices);
 
-    socket.on("room:join", async (eid, callback) => {
+    socket.on("room:join", async (eid: string, callback) => {
         try {
             const roomId = await roomServices.joinRoom(sid, eid);
             await socket.join(roomId);

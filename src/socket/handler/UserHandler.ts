@@ -1,8 +1,8 @@
-import StringUtils from "../utils/StringUtils";
-import logger from "../utils/Logger";
+import StringUtils from "../../utils/StringUtils";
+import logger from "../../utils/Logger";
 import {Container} from "typedi";
-import UserServices from "../service/UserServices";
-import {IOType, SocketType} from "../SocketServer";
+import UserServices from "../../service/UserServices";
+import {IOType, SocketType} from "../SocketEvent";
 
 const registerUserHandler = (io: IOType, socket: SocketType) => {
     const userServices = Container.get(UserServices);

@@ -5,7 +5,7 @@ import {useContainer, useExpressServer} from "routing-controllers";
 import {Container} from "typedi";
 import {GlobalErrorHandler} from "./middlewares/GlobalErrorHandler";
 import {CurrentUserChecker, PreAuthorize} from "./middlewares/JwtFilterMiddleware";
-import SocketServer from "./SocketServer";
+import SocketServer from "./socket/SocketServer";
 
 useContainer(Container);
 

@@ -1,8 +1,7 @@
-import {Inject, Service} from "typedi";
+import {Service} from "typedi";
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomResponse from "../dto/response/RoomResponse";
 import RoomRepo, {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
-import CollectionServices from "./CollectionServices";
 import {HttpError, NotFoundError, UnauthorizedError} from "routing-controllers";
 import StringUtils from "../utils/StringUtils";
 import Collection from "../models/Collection.model";
@@ -14,10 +13,7 @@ import IPlayer from "../dto/response/PlayerDto";
 export default class RoomServices {
     constructor() {}
 
-    @Inject()
-    private collectionServices: CollectionServices;
-
-    async create(eid: string, roomDto: RoomRequest) {
+    async create(eid: string, roomDto: RoomRequest): Promise<Partial<RoomResponse>> {
         const roomRepo = await RoomRepo();
 
         const {maxUsers, timeOut, collectionId} = roomDto;
@@ -35,7 +31,7 @@ export default class RoomServices {
         const roomId = StringUtils.randomId();
         const topics = await collection.$get("drawTopic");
         const room = await roomRepo.createAndSave({
-            hostId: host.entityId,
+            hostId: host.sid,
             roomId: roomId,
             roomName: host.name,
             maxUsers: maxUsers,
@@ -47,10 +43,12 @@ export default class RoomServices {
             status: RoomStatus.WAITING
         });
 
-        return room.toJSON();
+        return {
+            id: room.roomId
+        };
     }
 
-    async getAll() {
+    async getAll(): Promise<RoomResponse[]> {
         const redisRepo = await RoomRepo();
         const rooms = await redisRepo.search().all();
 
@@ -63,7 +61,6 @@ export default class RoomServices {
                 maxUsers: room.maxUsers,
                 currentUsers: room.userId.length,
                 collectionName: room.collectionName,
-                hostEId: room.hostId,
                 id: room.roomId,
                 name: room.roomName
             });
@@ -118,8 +115,8 @@ export default class RoomServices {
             status: room.status,
             timeOut: room.timeOut,
             eid: room.entityId,
-            hostEId: room.hostId,
-            name: room.roomName
+            name: room.roomName,
+            isHost: room.hostId == sid
         };
     }
 
@@ -172,7 +169,9 @@ export default class RoomServices {
             if (room.userId.length == 0) {
                 await roomRepo.remove(room.entityId);
             } else {
-                // TODO: update room's host when exiting player is host
+                if (room.hostId == sid) {
+                    room.hostId = room.userId[0];
+                }
                 await roomRepo.save(room);
             }
         }
