@@ -12,19 +12,20 @@ const registerUserHandler = (io: IOType, socket: SocketType) => {
     socket.on("user:init", async callback => {
         const userData = {
             sid: sid,
-            name: StringUtils.randomName()
+            name: StringUtils.randomName(),
+            point: 0
         };
         const user = await userServices.createAnonymousUser(userData, "1d");
 
         callback({
             ...userData,
-            id: user.entityId
+            eid: user.entityId
         });
     });
 
     socket.on("user:update", async arg => {
-        const {id, name} = arg;
-        await userServices.updateAnonymousUser(id, name);
+        const {eid, name} = arg;
+        await userServices.updateAnonymousUser(eid, name);
     });
 
     socket.on("disconnect", async () => {

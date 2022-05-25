@@ -10,6 +10,7 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
     socket.on("room:join", async (eid, callback) => {
         try {
             const roomId = await roomServices.joinRoom(sid, eid);
+            await socket.join(roomId);
             callback({
                 roomId: roomId
             });
@@ -22,6 +23,15 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
             callback({
                 message: e.message
             });
+        }
+    });
+
+    socket.on("room:exit", async (roomId: string) => {
+        try {
+            logger.debug(`Client ${sid} exiting room ${roomId}`);
+            await roomServices.removePlayer(sid, roomId);
+        } catch (e) {
+            logger.error(e);
         }
     });
 };

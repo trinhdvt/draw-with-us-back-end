@@ -1,7 +1,7 @@
 interface IUser {
     sid: string;
     name: string;
-    id: string;
+    eid: string;
 }
 
 export type {IUser};

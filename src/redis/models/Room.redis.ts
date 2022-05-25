@@ -8,6 +8,7 @@ enum RoomStatus {
 
 interface RoomRedis {
     roomId: string;
+    roomName: string;
     hostId: string;
     userId: string[];
     collectionId: string;
@@ -28,6 +29,7 @@ const RoomSchema = new Schema(RoomRedis, {
     timeOut: {type: "number"},
     maxUsers: {type: "number"},
     roomId: {type: "string"},
+    roomName: {type: "string"},
     topics: {type: "string[]"},
     status: {type: "string"}
 });
@@ -40,3 +42,4 @@ const RoomRepo = async () => {
 
 export default RoomRepo;
 export {RoomStatus};
+export type {RoomRedis};
