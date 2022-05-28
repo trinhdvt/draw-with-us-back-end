@@ -8,20 +8,42 @@ import registerGameHandler from "./handler/GameHandler";
 import {IOType} from "./SocketEvent";
 
 export default class SocketServer {
-    public readonly io: IOType;
+    public static io: IOType = null;
 
     constructor(httpServer: http.Server, cors?: CorsOptions) {
-        this.io = new Server(httpServer, {
-            cors: cors
-        });
-        this.register();
+        if (SocketServer.io == null) {
+            SocketServer.io = new Server(httpServer, {
+                cors: cors
+            });
+            this.register();
+        }
     }
 
     private register() {
-        this.io.on("connection", socket => {
-            registerUserHandler(this.io, socket);
-            registerRoomHandler(this.io, socket);
-            registerGameHandler(this.io, socket);
+        SocketServer.io.on("connection", socket => {
+            registerUserHandler(SocketServer.io, socket);
+            registerRoomHandler(SocketServer.io, socket);
+            registerGameHandler(SocketServer.io, socket);
         });
+    }
+
+    /**
+     * Make specified socket join specified room
+     * @param sid - Socket's ID
+     * @param roomId - Room's ID
+     */
+    public static joinRoom(sid: string, roomId: string) {
+        SocketServer.io.in(sid).socketsJoin(roomId);
+        SocketServer.io.to(roomId).emit("room:update");
+    }
+
+    /**
+     * Make specified socket leave specified room
+     * @param sid - Socket's ID
+     * @param roomId - Room's ID
+     */
+    public static leaveRoom(sid: string, roomId: string) {
+        SocketServer.io.in(sid).socketsLeave(roomId);
+        SocketServer.io.to(roomId).emit("room:update");
     }
 }

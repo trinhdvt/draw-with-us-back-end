@@ -10,14 +10,11 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
     socket.on("room:join", async (eid: string, callback) => {
         try {
             const roomId = await roomServices.joinRoom(sid, eid);
-            await socket.join(roomId);
             callback({
                 roomId: roomId
             });
 
             logger.debug(`Client ${sid} joined room ${eid}`);
-
-            socket.emit("room:update");
         } catch (e) {
             logger.error(e);
             callback({

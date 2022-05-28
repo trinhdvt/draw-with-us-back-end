@@ -8,6 +8,7 @@ import Collection from "../models/Collection.model";
 import RoomConfig from "../dto/response/RoomConfig";
 import UserRepo from "../redis/models/User.redis";
 import IPlayer from "../dto/response/PlayerDto";
+import SocketServer from "../socket/SocketServer";
 
 @Service()
 export default class RoomServices {
@@ -43,6 +44,7 @@ export default class RoomServices {
             status: RoomStatus.WAITING
         });
 
+        SocketServer.joinRoom(host.sid, room.roomId);
         return {
             id: room.roomId
         };
@@ -82,15 +84,16 @@ export default class RoomServices {
             throw new NotFoundError("Room not found");
         }
 
-        if (room.userId.length == room.maxUsers) {
-            throw new HttpError(400, "Room is full");
-        }
-
         if (room.userId.indexOf(sid) == -1) {
             room.userId.push(sid);
         }
-        await roomRepo.save(room);
 
+        if (room.userId.length > room.maxUsers) {
+            throw new HttpError(400, "Room is full");
+        }
+
+        await roomRepo.save(room);
+        SocketServer.joinRoom(sid, room.roomId);
         return room.roomId;
     }
 
@@ -138,11 +141,23 @@ export default class RoomServices {
             playerIds.map(id => playerRepo.search().where("sid").eq(id).first())
         );
 
-        return players.map<IPlayer>(player => ({
-            name: player.name,
-            eid: player.entityId,
-            point: player.point
-        }));
+        const response = players
+            .map<IPlayer>(player => ({
+                name: player.name,
+                eid: player.entityId,
+                point: player.point,
+                isHost: room.hostId == player.sid
+            }))
+            .sort((a, b) => (a.point > b.point ? -1 : 1));
+
+        if (room.status === RoomStatus.PLAYING) {
+            const MAX_TOP = 3;
+            for (let i = 0; i < MAX_TOP; i++) {
+                response[i].topk = i;
+            }
+        }
+
+        return response;
     }
 
     /**
@@ -166,6 +181,7 @@ export default class RoomServices {
             }
 
             room.userId = room.userId.filter(id => id !== sid);
+            SocketServer.leaveRoom(sid, room.roomId);
             if (room.userId.length == 0) {
                 await roomRepo.remove(room.entityId);
             } else {
