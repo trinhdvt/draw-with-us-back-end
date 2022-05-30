@@ -9,7 +9,7 @@ interface ClientToServerEvents {
     "user:update": (arg: Record<string, string>) => void;
     "room:join": (eid: string, callback: (e: Record<string, string>) => void) => void;
     "room:exit": (roomId: string) => void;
-    "game:join": (roomId: string, callback: (e: Record<string, unknown>) => void) => void;
+    "game:start": () => void;
 }
 
 type IOType = Server<ClientToServerEvents, ServerToClientEvents>;

@@ -152,8 +152,8 @@ export default class RoomServices {
 
         if (room.status === RoomStatus.PLAYING) {
             const MAX_TOP = 3;
-            for (let i = 0; i < MAX_TOP; i++) {
-                response[i].topk = i;
+            for (let i = 0; i < Math.min(response.length, MAX_TOP); i++) {
+                response[i].topk = i + 1;
             }
         }
 
@@ -188,6 +188,9 @@ export default class RoomServices {
                 if (room.hostId == sid) {
                     room.hostId = room.userId[0];
                 }
+                if (room.userId.length == 1) {
+                    room.status = RoomStatus.WAITING;
+                }
                 await roomRepo.save(room);
             }
         }
@@ -198,5 +201,21 @@ export default class RoomServices {
             user.point = 0;
             await userRepo.save(user);
         }
+    }
+
+    /**
+     * Start the game
+     * @param hostSid - Host's socket id
+     */
+    async startGame(hostSid: string): Promise<string> {
+        const roomRepo = await RoomRepo();
+        const room = await roomRepo.search().where("hostId").eq(hostSid).first();
+        if (!room) {
+            throw new UnauthorizedError("Room not found");
+        }
+
+        room.status = RoomStatus.PLAYING;
+        await roomRepo.save(room);
+        return room.roomId;
     }
 }

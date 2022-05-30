@@ -15,12 +15,16 @@ FROM node:16.15-alpine as runtime
 MAINTAINER "trinhdvt"
 
 WORKDIR /app
+ENV NODE_ENV="production"
 
 COPY --from=builder /app/package.json .
+COPY --from=builder /app/yarn.lock .
 COPY --from=builder /app/.env .
-RUN npm install --only=production --legacy-peer-deps && npm install pm2 -g
+
+RUN yarn install --production  \
+    && yarn global add pm2 \
+    && yarn cache clean
 
 COPY --from=builder /app/target target
 
-ENV NODE_ENV="production"
 CMD ["pm2-runtime", "./target/server.js"]
