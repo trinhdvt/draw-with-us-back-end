@@ -28,8 +28,8 @@ const registerUserHandler = (io: IOType, socket: SocketType) => {
         await userServices.updateAnonymousUser(eid, name);
     });
 
-    socket.on("disconnect", async () => {
-        logger.info(`Client disconnected with id: ${sid}`);
+    socket.on("disconnecting", async () => {
+        logger.info(`Client disconnecting with id: ${sid}`);
 
         await userServices.removeAnonymousUser(sid);
     });

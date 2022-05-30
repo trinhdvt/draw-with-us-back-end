@@ -9,6 +9,7 @@ import compression from "compression";
 import morgan from "morgan";
 import RedisClient from "./redis";
 import logger from "./utils/Logger";
+import SocketServer from "./socket/SocketServer";
 
 export default class App {
     private readonly app: express.Application;
@@ -41,8 +42,12 @@ export default class App {
                 this.httpServer = this.httpServer.listen(this.port, this.host, () => {
                     logger.info(`Server started at http://${this.host}:${this.port}`);
 
-                    const gracefulShutdown = async () => {
-                        await RedisClient.closeClient();
+                    const gracefulShutdown = () => {
+                        SocketServer.close(async () => {
+                            logger.info("Socket server is closed");
+                            await RedisClient.closeClient();
+                        });
+
                         this.httpServer.close(() => {
                             logger.info("Server stopped");
                             process.exit(0);

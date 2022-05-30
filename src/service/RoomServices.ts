@@ -9,6 +9,8 @@ import RoomConfig from "../dto/response/RoomConfig";
 import UserRepo from "../redis/models/User.redis";
 import IPlayer from "../dto/response/PlayerDto";
 import SocketServer from "../socket/SocketServer";
+import sequelize from "../models";
+import DrawTopicDto, {IGameTopic} from "../dto/response/DrawTopicDto";
 
 @Service()
 export default class RoomServices {
@@ -30,7 +32,12 @@ export default class RoomServices {
         }
 
         const roomId = StringUtils.randomId();
-        const topics = await collection.$get("drawTopic");
+        const topics = (
+            await collection.$get("drawTopic", {
+                order: sequelize.random()
+            })
+        ).map(topic => JSON.stringify(new DrawTopicDto(topic)));
+
         const room = await roomRepo.createAndSave({
             hostId: host.sid,
             roomId: roomId,
@@ -40,7 +47,7 @@ export default class RoomServices {
             userId: [host.sid],
             collectionId: collection.id,
             collectionName: collection.name,
-            topics: topics.map(topic => topic.nameVi),
+            topics: topics,
             status: RoomStatus.WAITING
         });
 
@@ -217,5 +224,27 @@ export default class RoomServices {
         room.status = RoomStatus.PLAYING;
         await roomRepo.save(room);
         return room.roomId;
+    }
+
+    async nextTurn(roomId: string) {
+        const roomRepo = await RoomRepo();
+        const room = await roomRepo.search().where("roomId").eq(roomId).first();
+        if (!room) {
+            throw new UnauthorizedError("Room not found");
+        }
+
+        if (room.topics.length == 0) {
+            return null;
+        }
+
+        const currentTopic: IGameTopic = JSON.parse(room.topics.shift());
+        if (room.topics.length == 0) {
+            room.status = RoomStatus.FINISHED;
+        }
+
+        return {
+            topic: currentTopic,
+            timeOut: room.timeOut
+        };
     }
 }

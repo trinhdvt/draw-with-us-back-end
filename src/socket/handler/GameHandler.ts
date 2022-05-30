@@ -11,6 +11,8 @@ const registerGameHandler = (io: IOType, socket: SocketType) => {
         try {
             const roomId = await roomServices.startGame(sid);
             io.to(roomId).emit("room:update");
+            const {topic} = await roomServices.nextTurn(roomId);
+            io.to(roomId).emit("game:nextTurn", topic);
         } catch (e) {
             logger.error(e);
         }

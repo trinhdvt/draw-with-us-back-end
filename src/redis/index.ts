@@ -15,7 +15,7 @@ class RedisClient {
     }
 
     public static async closeClient() {
-        if (RedisClient.client) {
+        if (RedisClient.client && RedisClient.client.isOpen()) {
             logger.info("Redis client is closing...");
             await RedisClient.client.close();
         }

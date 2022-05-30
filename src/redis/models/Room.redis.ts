@@ -3,7 +3,8 @@ import RedisClient from "../index";
 
 enum RoomStatus {
     WAITING = "waiting",
-    PLAYING = "playing"
+    PLAYING = "playing",
+    FINISHED = "finished"
 }
 
 interface RoomRedis {

@@ -1,18 +1,23 @@
 import DrawTopic from "../../models/DrawTopic.model";
 
-class DrawTopicDto {
+interface IGameTopic {
     id: number;
-    name: string;
+    nameVi: string;
     nameEn: string;
-    sample: string;
+}
+
+class DrawTopicDto implements IGameTopic {
+    id: number;
+    nameEn: string;
+    nameVi: string;
 
     constructor(drawTopic: DrawTopic) {
         const {id, nameEn, nameVi} = drawTopic;
         this.id = id;
-        this.name = nameVi;
+        this.nameVi = nameVi;
         this.nameEn = nameEn;
-        this.sample = "";
     }
 }
 
 export default DrawTopicDto;
+export type {IGameTopic};
