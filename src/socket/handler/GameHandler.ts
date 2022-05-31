@@ -9,10 +9,7 @@ const registerGameHandler = (io: IOType, socket: SocketType) => {
 
     socket.on("game:start", async () => {
         try {
-            const roomId = await roomServices.startGame(sid);
-            io.to(roomId).emit("room:update");
-            const {topic} = await roomServices.nextTurn(roomId);
-            io.to(roomId).emit("game:nextTurn", topic);
+            await roomServices.startGame(sid);
         } catch (e) {
             logger.error(e);
         }

@@ -1,11 +1,9 @@
 import * as http from "http";
 
 import {Server} from "socket.io";
-import registerUserHandler from "./handler/UserHandler";
 import {CorsOptions} from "cors";
-import registerRoomHandler from "./handler/RoomHandler";
-import registerGameHandler from "./handler/GameHandler";
 import {IOType} from "./SocketEvent";
+import {registerGameHandler, registerRoomHandler, registerUserHandler} from "./handler";
 
 export default class SocketServer {
     public static io: IOType = null;

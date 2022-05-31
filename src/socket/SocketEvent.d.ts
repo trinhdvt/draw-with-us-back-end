@@ -4,6 +4,7 @@ import {IGameTopic} from "../dto/response/DrawTopicDto";
 interface ServerToClientEvents {
     "room:update": () => void;
     "game:nextTurn": (topic: IGameTopic) => void;
+    "game:endTurn": () => void;
 }
 
 interface ClientToServerEvents {
