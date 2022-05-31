@@ -27,10 +27,10 @@ export default class App {
         this.port = parseInt(process.env.PORT ?? "8888");
         this.host = process.env.HOST ?? "localhost";
         this.corsOptions = {
-            origin: "*",
+            origin: ["https://draw-with.trinhdvt.tech", "http://localhost:3000"],
             methods: ["GET", "POST", "PUT", "DELETE"]
         };
-        this.logPattern = ":remote-addr [:date[clf]] :method :url :status - :response-time ms";
+        this.logPattern = ":req[X-Real-IP] [:date[clf]] :method :url :status - :response-time ms";
     }
 
     public start() {

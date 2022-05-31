@@ -47,6 +47,10 @@ export default class SocketServer {
         SocketServer.io.to(roomId).emit("room:update");
     }
 
+    /**
+     * Close socket server
+     * @param cb - Callback function
+     */
     public static close(cb?: (err?: Error) => void) {
         SocketServer.io.close(cb);
     }
