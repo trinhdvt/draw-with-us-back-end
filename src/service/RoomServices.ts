@@ -10,8 +10,7 @@ import UserRepo from "../redis/models/User.redis";
 import IPlayer from "../dto/response/PlayerDto";
 import SocketServer from "../socket/SocketServer";
 import sequelize from "../models";
-import DrawTopicDto, {IGameTopic} from "../dto/response/DrawTopicDto";
-import logger from "../utils/Logger";
+import DrawTopicDto from "../dto/response/DrawTopicDto";
 
 @Service()
 export default class RoomServices {
@@ -71,7 +70,7 @@ export default class RoomServices {
                 eid: room.entityId,
                 timeOut: room.timeOut,
                 maxUsers: room.maxUsers,
-                currentUsers: room.userId.length,
+                currentUsers: room.playerIds.length,
                 collectionName: room.collectionName,
                 id: room.roomId,
                 name: room.roomName
@@ -94,11 +93,11 @@ export default class RoomServices {
             throw new NotFoundError("Room not found");
         }
 
-        if (room.userId.indexOf(sid) == -1) {
-            room.userId.push(sid);
+        if (room.playerIds.indexOf(sid) == -1) {
+            room.playerIds.push(sid);
         }
 
-        if (room.userId.length > room.maxUsers) {
+        if (room.playerIds.length > room.maxUsers) {
             throw new HttpError(400, "Room is full");
         }
 
@@ -116,13 +115,13 @@ export default class RoomServices {
         const roomRepo = await RoomRepo();
 
         const room = await roomRepo.search().where("roomId").eq(roomId).first();
-        if (!room || room.userId.indexOf(sid) == -1) {
+        if (!room || room.playerIds.indexOf(sid) == -1) {
             throw new HttpError(400, "You are not in this room");
         }
 
         return {
             collectionName: room.collectionName,
-            currentUsers: room.userId.length,
+            currentUsers: room.playerIds.length,
             id: room.roomId,
             maxUsers: room.maxUsers,
             status: room.status,
@@ -141,11 +140,11 @@ export default class RoomServices {
     async getPlayers(roomId: string, sid: string): Promise<IPlayer[]> {
         const roomRepo = await RoomRepo();
         const room = await roomRepo.search().where("roomId").eq(roomId).first();
-        if (!room || room.userId.indexOf(sid) == -1) {
+        if (!room || room.playerIds.indexOf(sid) == -1) {
             throw new NotFoundError("Room not found");
         }
 
-        const playerIds = room.userId;
+        const playerIds = room.playerIds;
         const playerRepo = await UserRepo();
         const players = await Promise.all(
             playerIds.map(id => playerRepo.search().where("sid").eq(id).first())
@@ -186,19 +185,19 @@ export default class RoomServices {
 
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
-            if (!room || room.userId.indexOf(sid) == -1) {
+            if (!room || room.playerIds.indexOf(sid) == -1) {
                 throw new NotFoundError("Room not found");
             }
 
-            room.userId = room.userId.filter(id => id !== sid);
+            room.playerIds = room.playerIds.filter(id => id !== sid);
             SocketServer.leaveRoom(sid, room.roomId);
-            if (room.userId.length == 0) {
+            if (room.playerIds.length == 0) {
                 await roomRepo.remove(room.entityId);
             } else {
                 if (room.hostId == sid) {
-                    room.hostId = room.userId[0];
+                    room.hostId = room.playerIds[0];
                 }
-                if (room.userId.length == 1) {
+                if (room.playerIds.length == 1) {
                     room.status = RoomStatus.WAITING;
                 }
                 await roomRepo.save(room);
@@ -211,57 +210,5 @@ export default class RoomServices {
             user.point = 0;
             await userRepo.save(user);
         }
-    }
-
-    /**
-     * Start the game
-     * @param hostSid - Host's socket id
-     */
-    async startGame(hostSid: string) {
-        const roomRepo = await RoomRepo();
-        const room = await roomRepo.search().where("hostId").eq(hostSid).first();
-        if (!room) {
-            throw new UnauthorizedError("You are not the host");
-        }
-
-        // update room's statue
-        room.status = RoomStatus.PLAYING;
-        await roomRepo.save(room);
-        const {roomId} = room;
-        // tell all players update game state
-        SocketServer.io.to(roomId).emit("room:update");
-
-        // trigger next-turn game
-        await this.nextTurn(roomId);
-    }
-
-    async nextTurn(roomId: string) {
-        const roomRepo = await RoomRepo();
-        const room = await roomRepo.search().where("roomId").eq(roomId).first();
-        if (!room) {
-            throw new UnauthorizedError("Room not found");
-        }
-
-        if (room.topics.length == 0) {
-            logger.debug("No more topics");
-            return false;
-        }
-
-        const currentTopic: IGameTopic = JSON.parse(room.topics.shift());
-        if (room.topics.length == 0) {
-            room.status = RoomStatus.FINISHED;
-        }
-        await roomRepo.save(room);
-
-        logger.debug(`Next turn in room ${roomId} with topic ${currentTopic.nameVi}`);
-        SocketServer.io.to(roomId).emit("game:nextTurn", currentTopic);
-
-        const {timeOut} = room;
-        return setTimeout(() => {
-            SocketServer.io.to(roomId).emit("game:endTurn");
-            setImmediate(() => {
-                this.nextTurn(roomId);
-            });
-        }, timeOut * 1e3);
     }
 }

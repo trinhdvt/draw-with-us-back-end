@@ -1,15 +1,15 @@
 import {IOType, SocketType} from "../SocketEvent";
 import {Container} from "typedi";
-import RoomServices from "../../service/RoomServices";
 import logger from "../../utils/Logger";
+import GameServices from "../../service/GameServices";
 
 const registerGameHandler = (io: IOType, socket: SocketType) => {
     const sid = socket.id;
-    const roomServices = Container.get(RoomServices);
+    const gameServices = Container.get(GameServices);
 
     socket.on("game:start", async () => {
         try {
-            await roomServices.startGame(sid);
+            await gameServices.startGame(sid);
         } catch (e) {
             logger.error(e);
         }

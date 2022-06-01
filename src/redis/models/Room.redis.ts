@@ -8,15 +8,37 @@ enum RoomStatus {
 }
 
 interface RoomRedis {
+    /**
+     * Room's shortID
+     */
     roomId: string;
     roomName: string;
+    /**
+     * Host's socket id
+     */
     hostId: string;
-    userId: string[];
+    /**
+     * Socket ids of players
+     */
+    playerIds: string[];
     collectionId: string;
     collectionName: string;
+    /**
+     * List of topics to draw {@link IGameTopic}
+     */
     topics: string[];
+    /**
+     * Current topic in turn {@link IGameTopic}
+     */
+    currentTopic: string;
+    /**
+     * Timeout of one-turn (in seconds)
+     */
     timeOut: number;
     maxUsers: number;
+    /**
+     * Room's status - {@link RoomStatus}
+     */
     status: RoomStatus;
 }
 
@@ -24,7 +46,7 @@ class RoomRedis extends Entity {}
 
 const RoomSchema = new Schema(RoomRedis, {
     hostId: {type: "string"},
-    userId: {type: "string[]"},
+    playerIds: {type: "string[]"},
     collectionId: {type: "string"},
     collectionName: {type: "string"},
     timeOut: {type: "number"},
@@ -32,7 +54,8 @@ const RoomSchema = new Schema(RoomRedis, {
     roomId: {type: "string"},
     roomName: {type: "string"},
     topics: {type: "string[]"},
-    status: {type: "string"}
+    status: {type: "string"},
+    currentTopic: {type: "string"}
 });
 
 const RoomRepo = async () => {
