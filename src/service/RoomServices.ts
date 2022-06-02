@@ -9,8 +9,6 @@ import RoomConfig from "../dto/response/RoomConfig";
 import UserRepo from "../redis/models/User.redis";
 import IPlayer from "../dto/response/PlayerDto";
 import SocketServer from "../socket/SocketServer";
-import sequelize from "../models";
-import DrawTopicDto from "../dto/response/DrawTopicDto";
 import logger from "../utils/Logger";
 
 @Service()
@@ -33,14 +31,6 @@ export default class RoomServices {
         }
 
         const roomId = StringUtils.randomId();
-        const topics = (
-            await collection.$get("drawTopic", {
-                order: sequelize.random()
-            })
-        )
-            .map(topic => JSON.stringify(new DrawTopicDto(topic)))
-            .slice(-2);
-
         const room = await roomRepo.createAndSave({
             hostId: host.sid,
             roomId: roomId,
@@ -50,7 +40,7 @@ export default class RoomServices {
             playerIds: [host.sid],
             collectionId: collection.id,
             collectionName: collection.name,
-            topics: topics,
+            topics: [],
             status: RoomStatus.WAITING
         });
 
