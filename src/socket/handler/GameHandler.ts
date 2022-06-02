@@ -14,6 +14,14 @@ const registerGameHandler = (io: IOType, socket: SocketType) => {
             logger.error(e);
         }
     });
+
+    socket.on("game:predict", async (roomId: string, image: string, callback) => {
+        const isCorrect = await gameServices.check(sid, roomId, image);
+        callback({
+            isCorrect: isCorrect
+        });
+        io.to(roomId).emit("room:update");
+    });
 };
 
 export default registerGameHandler;

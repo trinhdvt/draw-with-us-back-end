@@ -410,13 +410,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/validator@npm:13.0.0":
-  version: 13.0.0
-  resolution: "@types/validator@npm:13.0.0"
-  checksum: 7001e96e663daa28f45120339ea4478cdf74cadfe74aba8b8de4c56bdaab559ab65de2eb334ce9026bba153231b96d9e6506b5d5dff8fea4e6c1a6babec523b3
-  languageName: node
-  linkType: hard
-
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -752,15 +745,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-validator@npm:^0.12.2":
-  version: 0.12.2
-  resolution: "class-validator@npm:0.12.2"
+"class-validator@npm:latest":
+  version: 0.13.2
+  resolution: "class-validator@npm:0.13.2"
   dependencies:
-    "@types/validator": 13.0.0
-    google-libphonenumber: ^3.2.8
-    tslib: ">=1.9.0"
-    validator: 13.0.0
-  checksum: 37a806f62794d0c473045b8a77bc48892e87a959d57588b52774385058a862e77952c3af4c02d61db5fd863ff08d19935b1bdd38851028e1460bb94eb97ffec7
+    libphonenumber-js: ^1.9.43
+    validator: ^13.7.0
+  checksum: 0deb4c29faa18345f6989fd7eaaaa07b05caae5298603fcd6485531c6daad503e5d2b24cc1342e4fc88ae5ba0acffdc24d0fc333110ef3f21a667cd8a79e1258
   languageName: node
   linkType: hard
 
@@ -1159,7 +1150,7 @@ __metadata:
     bcrypt: ^5.0.1
     body-parser: ^1.20.0
     class-transformer: ^0.3.1
-    class-validator: ^0.12.2
+    class-validator: latest
     compression: ^1.7.4
     cookie-parser: ^1.4.6
     cors: ^2.8.5
@@ -1542,13 +1533,6 @@ __metadata:
     minimatch: ^5.0.1
     once: ^1.3.0
   checksum: 50bcdea19d8e79d8de5f460b1939ffc2b3299eac28deb502093fdca22a78efebc03e66bf54f0abc3d3d07d8134d19a32850288b7440d77e072aa55f9d33b18c5
-  languageName: node
-  linkType: hard
-
-"google-libphonenumber@npm:^3.2.8":
-  version: 3.2.27
-  resolution: "google-libphonenumber@npm:3.2.27"
-  checksum: 22c0bff8da130a813b7976261e1812abbebbb2596a751968051700afa30bd4ecda1b54211b40eb6b2337bb51cc403851dd9a4e769cd54490e9ba777c387a846b
   languageName: node
   linkType: hard
 
@@ -1969,6 +1953,13 @@ __metadata:
   version: 2.0.0
   resolution: "kuler@npm:2.0.0"
   checksum: 9e10b5a1659f9ed8761d38df3c35effabffbd19fc6107324095238e4ef0ff044392cae9ac64a1c2dda26e532426485342226b93806bd97504b174b0dcf04ed81
+  languageName: node
+  linkType: hard
+
+"libphonenumber-js@npm:^1.9.43":
+  version: 1.10.6
+  resolution: "libphonenumber-js@npm:1.10.6"
+  checksum: 8754240b52f87bacfec01aa55f0cf6393d898ec5548c6da92a68ed1b4cb6129a1be9353e0f4c1b7e7ba9035b380d5a0d7d3142929dea5ad44bfe8d21934fbc2d
   languageName: node
   linkType: hard
 
@@ -3318,7 +3309,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:>=1.9.0, tslib@npm:^2.4.0":
+"tslib@npm:^2.4.0":
   version: 2.4.0
   resolution: "tslib@npm:2.4.0"
   checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
@@ -3460,13 +3451,6 @@ __metadata:
   version: 3.0.1
   resolution: "v8-compile-cache-lib@npm:3.0.1"
   checksum: 78089ad549e21bcdbfca10c08850022b22024cdcc2da9b168bcf5a73a6ed7bf01a9cebb9eac28e03cd23a684d81e0502797e88f3ccd27a32aeab1cfc44c39da0
-  languageName: node
-  linkType: hard
-
-"validator@npm:13.0.0":
-  version: 13.0.0
-  resolution: "validator@npm:13.0.0"
-  checksum: 7b5df6d0aec660ad12089fbcdd07cf506181ca2cd711d6e2bec7502c5cac1b31e8eb03875d23bcbc1b81a93648d5aacd52e2dc7b62cf02e71d3768533630f4c5
   languageName: node
   linkType: hard
 

@@ -3,6 +3,7 @@ import UserRepo, {UserRedis} from "../redis/models/User.redis";
 import ms from "ms";
 import {EntityData} from "redis-om";
 import RoomServices from "./RoomServices";
+import logger from "../utils/Logger";
 
 @Service()
 export default class UserServices {
@@ -30,6 +31,7 @@ export default class UserServices {
      * @param sid - User's socket id
      */
     async removeAnonymousUser(sid: string) {
+        logger.debug(`Remove anonymous user with sid: ${sid}`);
         const userRepo = await UserRepo();
         const user = await userRepo.search().where("sid").eq(sid).returnFirst();
         if (user) {

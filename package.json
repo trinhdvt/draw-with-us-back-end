@@ -10,7 +10,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "clean": "rm -rf ./target/*",
         "build": "yarn clean && tsc",
-        "start": "yarn build && node target/server.js",
+        "start": "yarn build && node --trace-warnings target/server.js",
         "format": "prettier --config .prettierrc.json 'src/**/*.ts' --write"
     },
     "dependencies": {
@@ -18,7 +18,7 @@
         "bcrypt": "^5.0.1",
         "body-parser": "^1.20.0",
         "class-transformer": "^0.3.1",
-        "class-validator": "^0.12.2",
+        "class-validator": "latest",
         "compression": "^1.7.4",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",

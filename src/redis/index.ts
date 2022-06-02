@@ -8,7 +8,7 @@ class RedisClient {
     public static async getClient() {
         if (!RedisClient.client || !RedisClient.client.isOpen()) {
             RedisClient.client = await new Client().open(process.env.REDIS_URL);
-            logger.debug("Redis client is opened");
+            logger.info("Redis client is opened");
         }
 
         return RedisClient.client;

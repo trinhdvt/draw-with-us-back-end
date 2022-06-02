@@ -1,13 +1,18 @@
-import {Service} from "typedi";
+import {Inject, Service} from "typedi";
 import RoomRepo, {RoomStatus} from "../redis/models/Room.redis";
 import {UnauthorizedError} from "routing-controllers";
 import SocketServer from "../socket/SocketServer";
 import logger from "../utils/Logger";
 import {IGameTopic} from "../dto/response/DrawTopicDto";
+import MLServices from "./MLServices";
+import UserRepo from "../redis/models/User.redis";
 
 @Service()
 export default class GameServices {
     constructor() {}
+
+    @Inject()
+    private mlServices: MLServices;
 
     /**
      * Start the game
@@ -31,11 +36,19 @@ export default class GameServices {
         await this.nextTurn(roomId);
     }
 
+    /**
+     * Trigger next turn
+     * @param roomId - Room's id
+     */
     async nextTurn(roomId: string) {
         const roomRepo = await RoomRepo();
         const room = await roomRepo.search().where("roomId").eq(roomId).first();
         if (!room) {
             throw new UnauthorizedError("Room not found");
+        }
+
+        if (room.status != RoomStatus.PLAYING) {
+            return false;
         }
 
         if (room.topics.length == 0) {
@@ -59,5 +72,35 @@ export default class GameServices {
                 this.nextTurn(roomId);
             }, 3e3);
         }, timeOut * 1e3);
+    }
+
+    /**
+     * Check if player's image is correct
+     * @param sid - Player's socket id
+     * @param roomId - Room's id
+     * @param image - Image's base64
+     */
+    async check(sid: string, roomId: string, image: string): Promise<boolean> {
+        const roomRepo = await RoomRepo();
+        const room = await roomRepo.search().where("roomId").eq(roomId).first();
+        if (!room || room.playerIds.indexOf(sid) == -1) {
+            throw new UnauthorizedError("Room not found");
+        }
+
+        // predict player's drawn image with current topic
+        const currentTopic: IGameTopic = JSON.parse(room.currentTopic);
+        const isCorrect = await this.mlServices.predict(image, currentTopic);
+
+        if (isCorrect) {
+            const playerRepo = await UserRepo();
+            const player = await playerRepo.search().where("sid").eq(sid).first();
+            const CORRECT_POINT = 10;
+            if (player) {
+                player.point += CORRECT_POINT;
+                await playerRepo.save(player);
+            }
+        }
+
+        return isCorrect;
     }
 }

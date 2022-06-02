@@ -50,6 +50,7 @@ export default class SocketServer {
      * @param cb - Callback function
      */
     public static close(cb?: (err?: Error) => void) {
+        SocketServer.io.disconnectSockets(true);
         SocketServer.io.close(cb);
     }
 }

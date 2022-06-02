@@ -11,6 +11,7 @@ import IPlayer from "../dto/response/PlayerDto";
 import SocketServer from "../socket/SocketServer";
 import sequelize from "../models";
 import DrawTopicDto from "../dto/response/DrawTopicDto";
+import logger from "../utils/Logger";
 
 @Service()
 export default class RoomServices {
@@ -38,7 +39,7 @@ export default class RoomServices {
             })
         )
             .map(topic => JSON.stringify(new DrawTopicDto(topic)))
-            .slice(-5);
+            .slice(-2);
 
         const room = await roomRepo.createAndSave({
             hostId: host.sid,
@@ -46,7 +47,7 @@ export default class RoomServices {
             roomName: host.name,
             maxUsers: maxUsers,
             timeOut: timeOut,
-            userId: [host.sid],
+            playerIds: [host.sid],
             collectionId: collection.id,
             collectionName: collection.name,
             topics: topics,
@@ -59,25 +60,22 @@ export default class RoomServices {
         };
     }
 
+    /**
+     * Get all rooms
+     */
     async getAll(): Promise<RoomResponse[]> {
         const redisRepo = await RoomRepo();
         const rooms = await redisRepo.search().all();
 
-        const response: RoomResponse[] = [];
-
-        for (const room of rooms) {
-            response.push({
-                eid: room.entityId,
-                timeOut: room.timeOut,
-                maxUsers: room.maxUsers,
-                currentUsers: room.playerIds.length,
-                collectionName: room.collectionName,
-                id: room.roomId,
-                name: room.roomName
-            });
-        }
-
-        return response;
+        return rooms.map<RoomResponse>(room => ({
+            eid: room.entityId,
+            timeOut: room.timeOut,
+            maxUsers: room.maxUsers,
+            currentUsers: room.playerIds.length,
+            collectionName: room.collectionName,
+            id: room.roomId,
+            name: room.roomName
+        }));
     }
 
     /**
@@ -144,13 +142,12 @@ export default class RoomServices {
             throw new NotFoundError("Room not found");
         }
 
-        const playerIds = room.playerIds;
         const playerRepo = await UserRepo();
-        const players = await Promise.all(
-            playerIds.map(id => playerRepo.search().where("sid").eq(id).first())
-        );
+        const players = await playerRepo.search().all();
 
+        const playerIds = room.playerIds;
         const response = players
+            .filter(player => playerIds.indexOf(player.sid) != -1)
             .map<IPlayer>(player => ({
                 name: player.name,
                 eid: player.entityId,
@@ -180,7 +177,7 @@ export default class RoomServices {
         if (roomId) {
             rooms = await roomRepo.search().where("roomId").eq(roomId).all();
         } else {
-            rooms = await roomRepo.search().where("userId").contain(sid).all();
+            rooms = await roomRepo.search().where("playerIds").contain(sid).all();
         }
 
         for (let i = 0; i < rooms.length; i++) {
@@ -189,10 +186,11 @@ export default class RoomServices {
                 throw new NotFoundError("Room not found");
             }
 
+            logger.debug(`Removing player ${sid} from room ${room.roomId}`);
             room.playerIds = room.playerIds.filter(id => id !== sid);
-            SocketServer.leaveRoom(sid, room.roomId);
             if (room.playerIds.length == 0) {
                 await roomRepo.remove(room.entityId);
+                logger.debug(`Room ${room.roomId} is empty, removing it`);
             } else {
                 if (room.hostId == sid) {
                     room.hostId = room.playerIds[0];
@@ -202,6 +200,7 @@ export default class RoomServices {
                 }
                 await roomRepo.save(room);
             }
+            SocketServer.leaveRoom(sid, room.roomId);
         }
 
         const userRepo = await UserRepo();

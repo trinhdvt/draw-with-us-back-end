@@ -13,6 +13,11 @@ interface ClientToServerEvents {
     "room:join": (eid: string, callback: (e: Record<string, string>) => void) => void;
     "room:exit": (roomId: string) => void;
     "game:start": () => void;
+    "game:predict": (
+        roomId: string,
+        image: string,
+        callback: (e: {isCorrect: boolean}) => void
+    ) => void;
 }
 
 type IOType = Server<ClientToServerEvents, ServerToClientEvents>;
