@@ -33,4 +33,10 @@ export default class RoomController {
     async getPlayers(@Param("roomId") roomId: string, @HeaderParam("X-SID") sid: string) {
         return await this.services.getPlayers(roomId, sid);
     }
+
+    @Get("/play")
+    @HttpCode(StatusCodes.OK)
+    async findRandomRoom() {
+        return await this.services.findRoom();
+    }
 }

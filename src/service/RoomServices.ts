@@ -121,6 +121,22 @@ export default class RoomServices {
     }
 
     /**
+     * Find one playable room for user
+     */
+    async findRoom() {
+        const rooms = await this.getAll();
+        const playableRooms = rooms.filter(room => room.currentUsers < room.maxUsers);
+        if (playableRooms.length == 0) {
+            throw new NotFoundError("No room available");
+        }
+
+        const randomIdx = Math.floor(Math.random() * playableRooms.length);
+        return {
+            roomEId: playableRooms[randomIdx].eid
+        };
+    }
+
+    /**
      * Get all players in the room
      * @param roomId - Room's shortID
      * @param sid - Current player's socket id
