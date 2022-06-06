@@ -116,7 +116,7 @@ export default class GameServices {
 
         // predict player's drawn image with current topic
         const currentTopic: IGameTopic = JSON.parse(room.currentTopic);
-        const isCorrect = await this.mlServices.predict(image, currentTopic);
+        const isCorrect = await this.mlServices.predict(image, currentTopic, sid);
 
         if (isCorrect) {
             const playerRepo = await UserRepo();
