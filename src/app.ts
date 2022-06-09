@@ -8,7 +8,7 @@ import cors, {CorsOptions} from "cors";
 import compression from "compression";
 import morgan from "morgan";
 import RedisClient from "./redis";
-import logger from "./utils/Logger";
+import logger, {morganLogStream} from "./utils/Logger";
 import SocketServer from "./socket/SocketServer";
 
 export default class App {
@@ -25,12 +25,15 @@ export default class App {
         this.database = sequelize;
         this.httpServer = createServer(this.app);
         this.port = parseInt(process.env.PORT ?? "8888");
-        this.host = process.env.HOST ?? "localhost";
+        this.host = process.env.HOST ?? "0.0.0.0";
         this.corsOptions = {
             origin: ["https://draw-with.trinhdvt.tech", "http://localhost:3000"],
             methods: ["GET", "POST", "PUT", "DELETE"]
         };
         this.logPattern = ":req[X-Real-IP] [:date[clf]] :method :url :status - :response-time ms";
+        if (process.env.NODE_ENV === "production") {
+            this.logPattern = "dev";
+        }
     }
 
     public start() {
@@ -67,7 +70,7 @@ export default class App {
         this.app.use(cookieParser());
         this.app.use(cors(this.corsOptions));
         this.app.use(compression());
-        this.app.use(morgan(process.env.NODE_ENV === "production" ? this.logPattern : "dev"));
+        this.app.use(morgan(this.logPattern, {stream: morganLogStream}));
     }
 
     public getServer(): express.Application {
