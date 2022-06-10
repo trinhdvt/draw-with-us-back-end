@@ -95,32 +95,6 @@ export default class RoomServices {
     }
 
     /**
-     * Get room's config
-     * @param sid - Player's socket id
-     * @param roomId - Room's ID
-     */
-    async getRoom(sid: string, roomId: string): Promise<RoomConfig> {
-        const roomRepo = await RoomRepo();
-
-        const room = await roomRepo.search().where("roomId").eq(roomId).first();
-        if (!room || room.playerIds.indexOf(sid) == -1) {
-            throw new HttpError(400, "You are not in this room");
-        }
-
-        return {
-            collectionName: room.collectionName,
-            currentUsers: room.playerIds.length,
-            id: room.roomId,
-            maxUsers: room.maxUsers,
-            status: room.status,
-            timeOut: room.timeOut,
-            eid: room.entityId,
-            name: room.roomName,
-            isHost: room.hostId == sid
-        };
-    }
-
-    /**
      * Find one playable room for user
      */
     async findRoom() {
@@ -137,16 +111,48 @@ export default class RoomServices {
     }
 
     /**
-     * Get all players in the room
+     * Check if player is in the room or not
      * @param roomId - Room's shortID
-     * @param sid - Current player's socket id
+     * @param sid - Player's socket id
      */
-    async getPlayers(roomId: string, sid: string): Promise<IPlayer[]> {
+    async checkPlayer(roomId: string, sid: string): Promise<RoomRedis> {
         const roomRepo = await RoomRepo();
         const room = await roomRepo.search().where("roomId").eq(roomId).first();
         if (!room || room.playerIds.indexOf(sid) == -1) {
             throw new NotFoundError("Room not found");
         }
+
+        return room;
+    }
+
+    /**
+     * Get room's config
+     * @param sid - Player's socket id
+     * @param roomId - Room's ID
+     */
+    async getRoom(sid: string, roomId: string): Promise<RoomConfig> {
+        const room = await this.checkPlayer(roomId, sid);
+
+        return {
+            collectionName: room.collectionName,
+            currentUsers: room.playerIds.length,
+            id: room.roomId,
+            maxUsers: room.maxUsers,
+            status: room.status,
+            timeOut: room.timeOut,
+            eid: room.entityId,
+            name: room.roomName,
+            isHost: room.hostId == sid
+        };
+    }
+
+    /**
+     * Get all players in the room
+     * @param roomId - Room's shortID
+     * @param sid - Current player's socket id
+     */
+    async getPlayers(roomId: string, sid: string): Promise<IPlayer[]> {
+        const room = await this.checkPlayer(roomId, sid);
 
         const playerRepo = await UserRepo();
         const players = await playerRepo.search().all();

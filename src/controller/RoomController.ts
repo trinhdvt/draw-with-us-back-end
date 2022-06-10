@@ -1,5 +1,14 @@
 import {Inject, Service} from "typedi";
-import {Body, Get, HeaderParam, HttpCode, JsonController, Param, Post} from "routing-controllers";
+import {
+    Body,
+    Get,
+    Head,
+    HeaderParam,
+    HttpCode,
+    JsonController,
+    Param,
+    Post
+} from "routing-controllers";
 import {StatusCodes} from "http-status-codes";
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomServices from "../service/RoomServices";
@@ -26,6 +35,13 @@ export default class RoomController {
     @HttpCode(StatusCodes.OK)
     async roomConfig(@Param("roomId") roomId: string, @HeaderParam("X-SID") sid: string) {
         return await this.services.getRoom(sid, roomId);
+    }
+
+    @Head("/room/:roomId/player")
+    @HttpCode(StatusCodes.OK)
+    async checkPlayerInRoom(@Param("roomId") roomId: string, @HeaderParam("X-SID") sid: string) {
+        await this.services.checkPlayer(roomId, sid);
+        return {roomId};
     }
 
     @Get("/room/:roomId/players")
