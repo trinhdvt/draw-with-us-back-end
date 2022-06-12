@@ -2,7 +2,7 @@ import {createLogger, format, transports} from "winston";
 import {StreamOptions} from "morgan";
 
 const logger = createLogger({
-    level: process.env.NODE_ENV === "production" ? "info" : "debug",
+    level: process.env.NODE_ENV === "production" ? "http" : "debug",
     exitOnError: false,
     format: format.combine(
         format.timestamp({
@@ -10,7 +10,7 @@ const logger = createLogger({
         }),
         format.colorize(),
         format.printf(log => {
-            return `[${log.timestamp}] [${log.level}]: ${log.stack ?? log.message}`;
+            return `[${log.timestamp}] [${log.level}]: ${log.message}`;
         })
     ),
     transports: [new transports.Console()]

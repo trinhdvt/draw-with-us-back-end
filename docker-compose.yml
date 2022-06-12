@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  redis:
+    container_name: game-database
+    image: redis/redis-stack-server:latest
+    restart: unless-stopped
+    volumes:
+      - game_data:/data
+    ports:
+      - '6379:6379'
+
+  mysql:
+    container_name: app-database
+    image: trinhvideo123/draw-with-us:app-db
+    cap_add:
+      - SYS_NICE
+    restart: unless-stopped
+    volumes:
+      - app_data:/var/lib/mysql
+    ports:
+      - '3306:3306'
+
+
+volumes:
+  game_data:
+  app_data:

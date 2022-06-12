@@ -30,8 +30,8 @@ export default class App {
             origin: ["https://draw-with.trinhdvt.tech", "http://localhost:3000"],
             methods: ["GET", "POST", "PUT", "DELETE"]
         };
-        this.logPattern = ":req[X-Real-IP] [:date[clf]] :method :url :status - :response-time ms";
-        if (process.env.NODE_ENV === "production") {
+        this.logPattern = ":req[X-Real-IP] :method :url :status - :response-time ms";
+        if (process.env.NODE_ENV !== "production") {
             this.logPattern = "dev";
         }
     }
