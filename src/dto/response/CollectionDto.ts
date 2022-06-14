@@ -12,6 +12,8 @@ interface ICollection {
     name: string;
     type: CollectionType;
     thumbnail: string;
+    playedCount: number;
+    numberOfTopics: number;
 }
 
 class CollectionDto implements ICollection {
@@ -19,6 +21,8 @@ class CollectionDto implements ICollection {
     name: string;
     type: CollectionType;
     thumbnail: string;
+    numberOfTopics: number;
+    playedCount: number;
 
     constructor(collection: Collection) {
         const {id, name, image, isPublic, isOfficial} = collection;
@@ -30,6 +34,8 @@ class CollectionDto implements ICollection {
             : isOfficial
             ? CollectionType.OFFICIAL
             : CollectionType.YOUR;
+        this.numberOfTopics = collection.drawTopic.length;
+        this.playedCount = collection.playedCount;
     }
 }
 

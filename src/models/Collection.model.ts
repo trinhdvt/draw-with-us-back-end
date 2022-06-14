@@ -39,6 +39,9 @@ export default class Collection extends Model {
     image: string;
 
     @Column
+    playedCount: number;
+
+    @Column
     @ForeignKey(() => User)
     userId: number;
 
