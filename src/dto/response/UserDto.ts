@@ -1,7 +1,7 @@
-interface IUser {
+interface IAnonymousUser {
     sid: string;
     name: string;
     eid: string;
 }
 
-export type {IUser};
+export type {IAnonymousUser};

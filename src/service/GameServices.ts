@@ -1,13 +1,15 @@
 import {Inject, Service} from "typedi";
-import RoomRepo, {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
-import {UnauthorizedError} from "routing-controllers";
+import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
+import {NotFoundError, UnauthorizedError} from "routing-controllers";
 import SocketServer from "../socket/SocketServer";
 import logger from "../utils/Logger";
 import DrawTopicDto, {IGameTopic} from "../dto/response/DrawTopicDto";
 import MLServices from "./MLServices";
-import UserRepo from "../redis/models/User.redis";
 import Collection from "../models/Collection.model";
 import sequelize from "../models";
+import RoomRepository from "../repository/RoomRepository";
+import PlayerRepository from "../repository/PlayerRepository";
+import AssertUtils from "../utils/AssertUtils";
 
 @Service()
 export default class GameServices {
@@ -16,20 +18,23 @@ export default class GameServices {
     @Inject()
     private mlServices: MLServices;
 
+    @Inject()
+    private roomRepo: RoomRepository;
+
+    @Inject()
+    private playerRepo: PlayerRepository;
+
     /**
      * Start the game
      * @param hostSid - Host's socket id
      */
     async startGame(hostSid: string) {
-        const roomRepo = await RoomRepo();
-        const room = await roomRepo.search().where("hostId").eq(hostSid).first();
-        if (!room || room.playerIds.length < 2) {
-            throw new UnauthorizedError("Unable to start game");
-        }
+        const room = await this.roomRepo.getByAttr("hostId", hostSid);
+        const {playerIds} = room;
+        AssertUtils.isExist(room, new NotFoundError("Room not found"));
+        AssertUtils.isTrue(playerIds.length >= 2, new UnauthorizedError("Unable to start game"));
 
         const {roomId} = await this.prepareGame(room);
-
-        // tell all players update game state
         SocketServer.io.to(roomId).emit("room:update");
 
         // trigger next-turn game
@@ -38,8 +43,6 @@ export default class GameServices {
 
     private async prepareGame(room: RoomRedis): Promise<RoomRedis> {
         const {collectionId, playerIds} = room;
-
-        const roomRepo = await RoomRepo();
         // update room's status
         room.status = RoomStatus.PLAYING;
 
@@ -49,17 +52,18 @@ export default class GameServices {
             order: sequelize.random()
         });
         room.topics = drawTopics.map(topic => JSON.stringify(new DrawTopicDto(topic))).slice(-2);
-        await roomRepo.save(room);
+        await this.roomRepo.save(room);
+        collection.playedCount += 1;
+        await collection.save();
 
         // reset all players' point
-        const playerRepo = await UserRepo();
-        const players = await playerRepo.search().all();
+        const players = await this.playerRepo.getAll();
         await Promise.all(
             players
                 .filter(({sid}) => playerIds.indexOf(sid) != -1)
                 .map(player => {
                     player.point = 0;
-                    return playerRepo.save(player);
+                    return this.playerRepo.save(player);
                 })
         );
 
@@ -71,32 +75,31 @@ export default class GameServices {
      * @param roomId - Room's id
      */
     async nextTurn(roomId: string) {
-        const roomRepo = await RoomRepo();
-        const room = await roomRepo.search().where("roomId").eq(roomId).first();
+        const room = await this.roomRepo.getByShortId(roomId);
         if (!room || room.status != RoomStatus.PLAYING) {
             return;
         }
 
         if (room.topics.length == 0) {
             room.status = RoomStatus.FINISHED;
-            logger.debug("No more topics");
-            await roomRepo.save(room);
+            logger.info("No more topics");
+            await this.roomRepo.save(room);
             SocketServer.io.to(roomId).emit("room:update");
             return;
         }
 
         const currentTopic: IGameTopic = JSON.parse(room.topics.shift());
         room.currentTopic = JSON.stringify(currentTopic);
-        await roomRepo.save(room);
+        await this.roomRepo.save(room);
 
-        logger.debug(`Next turn in room ${roomId} with topic ${currentTopic.nameVi}`);
+        logger.info(`Next turn in room ${roomId} with topic ${currentTopic.nameVi}`);
         SocketServer.io.to(roomId).emit("game:nextTurn", currentTopic);
 
         const {timeOut} = room;
         return setTimeout(() => {
             SocketServer.io.to(roomId).emit("game:endTurn");
-            setTimeout(() => {
-                this.nextTurn(roomId);
+            setTimeout(async () => {
+                await this.nextTurn(roomId);
             }, 3e3);
         }, timeOut * 1e3);
     }
@@ -108,23 +111,23 @@ export default class GameServices {
      * @param image - Image's base64
      */
     async check(sid: string, roomId: string, image: string): Promise<boolean> {
-        const roomRepo = await RoomRepo();
-        const room = await roomRepo.search().where("roomId").eq(roomId).first();
-        if (!room || room.playerIds.indexOf(sid) == -1) {
-            throw new UnauthorizedError("Room not found");
-        }
+        const room = await this.roomRepo.getByShortId(roomId);
+        AssertUtils.isExist(room, new NotFoundError("Room not found"));
+        AssertUtils.isTrue(
+            room.playerIds.indexOf(sid) != -1,
+            new UnauthorizedError("Room not found")
+        );
 
         // predict player's drawn image with current topic
         const currentTopic: IGameTopic = JSON.parse(room.currentTopic);
         const isCorrect = await this.mlServices.predict(image, currentTopic, sid);
 
         if (isCorrect) {
-            const playerRepo = await UserRepo();
-            const player = await playerRepo.search().where("sid").eq(sid).first();
+            const player = await this.playerRepo.getBySid(sid);
             const CORRECT_POINT = 10;
             if (player) {
                 player.point += CORRECT_POINT;
-                await playerRepo.save(player);
+                await this.playerRepo.save(player);
             }
         }
 

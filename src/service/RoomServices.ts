@@ -1,37 +1,39 @@
-import {Service} from "typedi";
+import {Inject, Service} from "typedi";
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomResponse from "../dto/response/RoomResponse";
-import RoomRepo, {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
-import {HttpError, NotFoundError, UnauthorizedError} from "routing-controllers";
+import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
+import {NotFoundError} from "routing-controllers";
 import StringUtils from "../utils/StringUtils";
 import Collection from "../models/Collection.model";
 import RoomConfig from "../dto/response/RoomConfig";
-import UserRepo from "../redis/models/User.redis";
 import IPlayer from "../dto/response/PlayerDto";
 import SocketServer from "../socket/SocketServer";
 import logger from "../utils/Logger";
+import PlayerRepository from "../repository/PlayerRepository";
+import RoomRepository from "../repository/RoomRepository";
+import AssertUtils from "../utils/AssertUtils";
 
 @Service()
 export default class RoomServices {
     constructor() {}
 
-    async create(eid: string, roomDto: RoomRequest): Promise<Partial<RoomResponse>> {
-        const roomRepo = await RoomRepo();
+    @Inject()
+    private playerRepo: PlayerRepository;
 
+    @Inject()
+    private roomRepo: RoomRepository;
+
+    async create(eid: string, roomDto: RoomRequest): Promise<{id: string}> {
         const {maxUsers, timeOut, collectionId} = roomDto;
-        const collection = await Collection.findByPk(Number(collectionId));
-        if (!collection) {
-            throw new NotFoundError(`Collection with id ${collectionId} not found`);
-        }
 
-        const userRepo = await UserRepo();
-        const host = await userRepo.fetch(eid);
-        if (!host) {
-            throw new UnauthorizedError("User not found");
-        }
+        const collection = await Collection.findByPk(Number(collectionId));
+        AssertUtils.isExist(collection, new NotFoundError("Collection not found"));
+
+        const host = await this.playerRepo.getById(eid);
+        AssertUtils.isExist(host, new NotFoundError("Player not found"));
 
         const roomId = StringUtils.randomId();
-        const room = await roomRepo.createAndSave({
+        const room = await this.roomRepo.create({
             hostId: host.sid,
             roomId: roomId,
             roomName: host.name,
@@ -54,9 +56,7 @@ export default class RoomServices {
      * Get all rooms
      */
     async getAll(): Promise<RoomResponse[]> {
-        const redisRepo = await RoomRepo();
-        const rooms = await redisRepo.search().all();
-
+        const rooms = await this.roomRepo.getAll();
         return rooms.map<RoomResponse>(room => ({
             eid: room.entityId,
             timeOut: room.timeOut,
@@ -74,22 +74,19 @@ export default class RoomServices {
      * @param eid - Room's entity ID
      */
     async joinRoom(sid: string, eid: string) {
-        const roomRepo = await RoomRepo();
-
-        const room = await roomRepo.fetch(eid);
-        if (!room) {
-            throw new NotFoundError("Room not found");
-        }
+        const room = await this.roomRepo.getById(eid);
+        AssertUtils.isExist(room, new NotFoundError("Room not found"));
 
         if (room.playerIds.indexOf(sid) == -1) {
             room.playerIds.push(sid);
         }
 
-        if (room.playerIds.length > room.maxUsers) {
-            throw new HttpError(400, "Room is full");
-        }
+        AssertUtils.isTrue(
+            room.playerIds.length <= room.maxUsers,
+            new NotFoundError("Room is full")
+        );
 
-        await roomRepo.save(room);
+        await this.roomRepo.save(room);
         SocketServer.joinRoom(sid, room.roomId);
         return room.roomId;
     }
@@ -100,9 +97,7 @@ export default class RoomServices {
     async findRoom() {
         const rooms = await this.getAll();
         const playableRooms = rooms.filter(room => room.currentUsers < room.maxUsers);
-        if (playableRooms.length == 0) {
-            throw new NotFoundError("No room available");
-        }
+        AssertUtils.isTrue(playableRooms.length > 0, new NotFoundError("No room available"));
 
         const randomIdx = Math.floor(Math.random() * playableRooms.length);
         return {
@@ -116,11 +111,10 @@ export default class RoomServices {
      * @param sid - Player's socket id
      */
     async checkPlayer(roomId: string, sid: string): Promise<RoomRedis> {
-        const roomRepo = await RoomRepo();
-        const room = await roomRepo.search().where("roomId").eq(roomId).first();
-        if (!room || room.playerIds.indexOf(sid) == -1) {
-            throw new NotFoundError("Room not found");
-        }
+        const room = await this.roomRepo.getByShortId(roomId);
+        const {playerIds} = room;
+        AssertUtils.isExist(room, new NotFoundError("Room not found"));
+        AssertUtils.isTrue(playerIds.indexOf(sid) != -1, new NotFoundError("Room not found"));
 
         return room;
     }
@@ -132,7 +126,6 @@ export default class RoomServices {
      */
     async getRoom(sid: string, roomId: string): Promise<RoomConfig> {
         const room = await this.checkPlayer(roomId, sid);
-
         return {
             collectionName: room.collectionName,
             currentUsers: room.playerIds.length,
@@ -153,9 +146,7 @@ export default class RoomServices {
      */
     async getPlayers(roomId: string, sid: string): Promise<IPlayer[]> {
         const room = await this.checkPlayer(roomId, sid);
-
-        const playerRepo = await UserRepo();
-        const players = await playerRepo.search().all();
+        const players = await this.playerRepo.getAll();
 
         const playerIds = room.playerIds;
         const response = players
@@ -184,24 +175,22 @@ export default class RoomServices {
      * @param roomId - Room's shortID. If undefined, remove player from all rooms
      */
     async removePlayer(sid: string, roomId?: string) {
-        const roomRepo = await RoomRepo();
         let rooms: RoomRedis[];
         if (roomId) {
-            rooms = await roomRepo.search().where("roomId").eq(roomId).all();
+            const room = await this.roomRepo.getByShortId(roomId);
+            rooms = [room];
         } else {
-            rooms = await roomRepo.search().where("playerIds").contain(sid).all();
+            rooms = await this.roomRepo.getByPlayerIdsContain(sid);
         }
 
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
-            if (!room || room.playerIds.indexOf(sid) == -1) {
-                throw new NotFoundError("Room not found");
-            }
+            AssertUtils.isExist(room, new NotFoundError("Room not found"));
 
             logger.debug(`Removing player ${sid} from room ${room.roomId}`);
             room.playerIds = room.playerIds.filter(id => id !== sid);
             if (room.playerIds.length == 0) {
-                await roomRepo.remove(room.entityId);
+                await this.roomRepo.remove(room);
                 logger.debug(`Room ${room.roomId} is empty, removing it`);
             } else {
                 if (room.hostId == sid) {
@@ -210,16 +199,15 @@ export default class RoomServices {
                 if (room.playerIds.length == 1) {
                     room.status = RoomStatus.WAITING;
                 }
-                await roomRepo.save(room);
+                await this.roomRepo.save(room);
             }
             SocketServer.leaveRoom(sid, room.roomId);
         }
 
-        const userRepo = await UserRepo();
-        const user = await userRepo.search().where("sid").eq(sid).first();
-        if (user) {
+        const user = await this.playerRepo.getBySid(sid);
+        if (user && user.point != 0) {
             user.point = 0;
-            await userRepo.save(user);
+            await this.playerRepo.save(user);
         }
     }
 }

@@ -1,29 +1,27 @@
 import {Inject, Service} from "typedi";
-import UserRepo, {UserRedis} from "../redis/models/User.redis";
-import ms from "ms";
-import {EntityData} from "redis-om";
 import RoomServices from "./RoomServices";
-import logger from "../utils/Logger";
+import PlayerRepository from "../repository/PlayerRepository";
+import {IAnonymousUser} from "../dto/response/UserDto";
 
 @Service()
 export default class UserServices {
     @Inject()
     private roomServices: RoomServices;
 
+    @Inject()
+    private playerRepo: PlayerRepository;
+
     /**
      * Create anonymous user and store in Redis
-     * @param data - User's data. See {@link UserRedis}
-     * @param expire - User's expiration time. Default is non-expire
+     * @param sid - User's socket id
      */
-    async createAnonymousUser(data: EntityData, expire?: string) {
-        const userRepo = await UserRepo();
-        const user = await userRepo.createAndSave(data);
-        if (expire) {
-            const ttl = ms(expire) / 1e3;
-            await userRepo.expire(user.entityId, ttl);
-        }
-
-        return user;
+    async createAnonymousUser(sid: string): Promise<IAnonymousUser> {
+        const {entityId, name} = await this.playerRepo.create(sid, "1d");
+        return {
+            eid: entityId,
+            name,
+            sid
+        };
     }
 
     /**
@@ -31,13 +29,10 @@ export default class UserServices {
      * @param sid - User's socket id
      */
     async removeAnonymousUser(sid: string) {
-        logger.debug(`Remove anonymous user with sid: ${sid}`);
-        const userRepo = await UserRepo();
-        const user = await userRepo.search().where("sid").eq(sid).returnFirst();
+        const user = await this.playerRepo.getBySid(sid);
         if (user) {
-            await userRepo.remove(user.entityId);
+            await this.playerRepo.remove(user);
         }
-
         await this.roomServices.removePlayer(sid);
     }
 
@@ -47,11 +42,10 @@ export default class UserServices {
      * @param name - New user's name
      */
     async updateAnonymousUser(eid: string, name: string) {
-        const userRepo = await UserRepo();
-        const user = await userRepo.fetch(eid);
+        const user = await this.playerRepo.getById(eid);
         if (user) {
             user.name = name;
-            await userRepo.save(user);
+            await this.playerRepo.save(user);
         }
     }
 }

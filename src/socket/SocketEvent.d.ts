@@ -1,5 +1,6 @@
 import {Server, Socket} from "socket.io";
 import {IGameTopic} from "../dto/response/DrawTopicDto";
+import {IAnonymousUser} from "../dto/response/UserDto";
 
 interface ServerToClientEvents {
     "room:update": () => void;
@@ -8,7 +9,7 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-    "user:init": (callback: (e: Record<string, unknown>) => void) => void;
+    "user:init": (callback: (e: IAnonymousUser) => void) => void;
     "user:update": (arg: Record<string, string>) => void;
     "room:join": (eid: string, callback: (e: Record<string, string>) => void) => void;
     "room:exit": (roomId: string) => void;

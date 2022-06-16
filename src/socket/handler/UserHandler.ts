@@ -1,4 +1,3 @@
-import StringUtils from "../../utils/StringUtils";
 import logger from "../../utils/Logger";
 import {Container} from "typedi";
 import UserServices from "../../service/UserServices";
@@ -10,17 +9,8 @@ const registerUserHandler = (io: IOType, socket: SocketType) => {
     logger.info(`Client connected with id: ${sid}`);
 
     socket.on("user:init", async callback => {
-        const userData = {
-            sid: sid,
-            name: StringUtils.randomName(),
-            point: 0
-        };
-        const user = await userServices.createAnonymousUser(userData, "1d");
-
-        callback({
-            ...userData,
-            eid: user.entityId
-        });
+        const data = await userServices.createAnonymousUser(sid);
+        return callback(data);
     });
 
     socket.on("user:update", async arg => {
@@ -30,7 +20,6 @@ const registerUserHandler = (io: IOType, socket: SocketType) => {
 
     socket.on("disconnecting", async () => {
         logger.info(`Client disconnecting with id: ${sid}`);
-
         await userServices.removeAnonymousUser(sid);
     });
 };
