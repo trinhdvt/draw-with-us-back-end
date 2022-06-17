@@ -1,5 +1,5 @@
 import {Inject, Service} from "typedi";
-import {NotFoundError} from "routing-controllers";
+import {BadRequestError, NotFoundError} from "routing-controllers";
 
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomResponse from "../dto/response/RoomResponse";
@@ -13,6 +13,7 @@ import logger from "../utils/Logger";
 import PlayerRepository from "../repository/PlayerRepository";
 import RoomRepository from "../repository/RoomRepository";
 import AssertUtils from "../utils/AssertUtils";
+import AppConfig from "../models/AppConfig.model";
 
 @Service()
 export default class RoomServices {
@@ -49,6 +50,19 @@ export default class RoomServices {
         return {
             id: room.roomId
         };
+    }
+
+    async validateCreateRoomParams({maxUsers, timeOut}: RoomRequest) {
+        const {room} = await AppConfig.findByPk(1);
+
+        AssertUtils.isTrue(
+            room.timeOut.includes(timeOut),
+            new BadRequestError("Time out is not valid")
+        );
+        AssertUtils.isTrue(
+            room.maxPlayers.includes(maxUsers),
+            new BadRequestError("Max users is not valid")
+        );
     }
 
     /**

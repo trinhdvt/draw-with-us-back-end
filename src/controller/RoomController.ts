@@ -23,6 +23,7 @@ export default class RoomController {
     @Post("/rooms")
     @HttpCode(StatusCodes.OK)
     async createRoom(@Body() roomDto: RoomRequest, @HeaderParam("X-EID") eid: string) {
+        await this.services.validateCreateRoomParams(roomDto);
         return await this.services.create(eid, roomDto);
     }
 
