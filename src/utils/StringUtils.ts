@@ -13,9 +13,11 @@ export default class StringUtils {
         return uniqueNamesGenerator(customConfig);
     }
 
+    private static nanoid = customAlphabet(
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    );
+
     public static randomId(length = 8) {
-        const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-";
-        const nanoid = customAlphabet(alphabet);
-        return nanoid(length);
+        return StringUtils.nanoid(length);
     }
 }

@@ -2,7 +2,7 @@ import {Column, DataType, Model, Table} from "sequelize-typescript";
 
 type RoomConfig = {
     timeOut: Array<number>;
-    maxPlayers: Array<number>;
+    maxUsers: Array<number>;
 };
 
 @Table({

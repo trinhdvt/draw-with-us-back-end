@@ -60,7 +60,7 @@ export default class RoomServices {
             new BadRequestError("Time out is not valid")
         );
         AssertUtils.isTrue(
-            room.maxPlayers.includes(maxUsers),
+            room.maxUsers.includes(maxUsers),
             new BadRequestError("Max users is not valid")
         );
     }

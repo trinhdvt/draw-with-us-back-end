@@ -16,7 +16,7 @@ export default class AppConfigController {
     @Get("/app")
     @HttpCode(StatusCodes.OK)
     async appConfig() {
-        return await AppConfig.findAll({
+        return await AppConfig.findByPk(1, {
             raw: true
         });
     }
