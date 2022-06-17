@@ -7,6 +7,7 @@ import {
     Model,
     Table
 } from "sequelize-typescript";
+
 import User from "./User.model";
 import DrawTopic from "./DrawTopic.model";
 import CollectionTopic from "./CollectionTopic.model";

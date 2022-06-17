@@ -1,6 +1,7 @@
-import {IGameTopic} from "../dto/response/DrawTopicDto";
 import {Service} from "typedi";
 import axios, {AxiosInstance} from "axios";
+
+import {IGameTopic} from "../dto/response/DrawTopicDto";
 import logger from "../utils/Logger";
 
 type ResponseType = Record<string, number>;

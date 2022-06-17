@@ -1,4 +1,5 @@
 import {BelongsTo, Column, ForeignKey, Model, Table} from "sequelize-typescript";
+
 import DrawTopic from "./DrawTopic.model";
 
 @Table({

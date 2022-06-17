@@ -1,5 +1,6 @@
-import {IOType, SocketType} from "../SocketEvent";
 import {Container} from "typedi";
+
+import {IOType, SocketType} from "../SocketEvent";
 import RoomServices from "../../service/RoomServices";
 import logger from "../../utils/Logger";
 

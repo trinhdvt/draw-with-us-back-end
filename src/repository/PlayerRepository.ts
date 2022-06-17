@@ -1,12 +1,11 @@
 import {Service} from "typedi";
-import UserRepo, {UserRedis} from "../redis/models/User.redis";
 import ms from "ms";
+
+import UserRepo, {UserRedis} from "../redis/models/User.redis";
 import StringUtils from "../utils/StringUtils";
 
 @Service()
 class PlayerRepository {
-    constructor() {}
-
     async create(sid: string, expire?: string) {
         const playerData = {
             sid: sid,

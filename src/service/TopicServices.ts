@@ -1,14 +1,13 @@
 import {Service} from "typedi";
+import {FindOptions} from "sequelize";
+
 import DrawTopic from "../models/DrawTopic.model";
 import DrawTopicDto from "../dto/response/DrawTopicDto";
 import TopicSample from "../models/TopicSample.model";
-import {FindOptions} from "sequelize";
 import ISample from "../dto/response/SampleDto";
 
 @Service()
 class TopicServices {
-    constructor() {}
-
     async getAll() {
         const topics = await DrawTopic.findAll({
             order: [["nameVi", "ASC"]]

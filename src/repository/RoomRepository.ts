@@ -1,5 +1,6 @@
 import {Service} from "typedi";
 import {EntityData} from "redis-om";
+
 import RoomRepo, {RoomRedis} from "../redis/models/Room.redis";
 
 type RoomKey = keyof RoomRedis;
@@ -7,8 +8,6 @@ type RoomValues = string | number | boolean | Date;
 
 @Service()
 class RoomRepository {
-    constructor() {}
-
     async create(roomDto: EntityData) {
         const roomRepo = await RoomRepo();
         return await roomRepo.createAndSave(roomDto);

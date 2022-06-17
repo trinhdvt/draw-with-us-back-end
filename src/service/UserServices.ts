@@ -1,7 +1,9 @@
 import {Inject, Service} from "typedi";
-import RoomServices from "./RoomServices";
+
 import PlayerRepository from "../repository/PlayerRepository";
 import {IAnonymousUser} from "../dto/response/UserDto";
+
+import RoomServices from "./RoomServices";
 
 @Service()
 export default class UserServices {

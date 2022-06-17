@@ -1,5 +1,6 @@
-import logger from "../../utils/Logger";
 import {Container} from "typedi";
+
+import logger from "../../utils/Logger";
 import UserServices from "../../service/UserServices";
 import {IOType, SocketType} from "../SocketEvent";
 

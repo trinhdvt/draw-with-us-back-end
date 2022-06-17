@@ -1,12 +1,14 @@
-import express from "express";
-import sequelize from "./models";
+import {createServer, Server} from "http";
+
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import {Sequelize} from "sequelize-typescript";
-import {createServer, Server} from "http";
+import express from "express";
 import cors, {CorsOptions} from "cors";
 import compression from "compression";
 import morgan from "morgan";
+
+import sequelize from "./models";
 import RedisClient from "./redis";
 import logger, {morganLogStream} from "./utils/Logger";
 import SocketServer from "./socket/SocketServer";

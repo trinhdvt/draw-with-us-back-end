@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import "dotenv/config";
-import App from "./app";
+
 import {useContainer, useExpressServer} from "routing-controllers";
 import {Container} from "typedi";
+
+import App from "./app";
 import {GlobalErrorHandler} from "./middlewares/GlobalErrorHandler";
-import {CurrentUserChecker, PreAuthorize} from "./middlewares/JwtFilterMiddleware";
 import SocketServer from "./socket/SocketServer";
 
 useContainer(Container);
@@ -28,9 +29,7 @@ useExpressServer(app.getServer(), {
     },
     routePrefix: "/api",
     controllers: [__dirname + "/controller/*.js"],
-    middlewares: [GlobalErrorHandler],
-    authorizationChecker: PreAuthorize,
-    currentUserChecker: CurrentUserChecker
+    middlewares: [GlobalErrorHandler]
 });
 
 // register socket.io

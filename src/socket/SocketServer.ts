@@ -2,6 +2,7 @@ import * as http from "http";
 
 import {Server} from "socket.io";
 import {CorsOptions} from "cors";
+
 import {IOType} from "./SocketEvent";
 import {registerGameHandler, registerRoomHandler, registerUserHandler} from "./handler";
 

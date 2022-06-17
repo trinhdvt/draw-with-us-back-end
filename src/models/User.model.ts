@@ -1,4 +1,5 @@
 import {BelongsToMany, Column, DataType, HasMany, HasOne, Model, Table} from "sequelize-typescript";
+
 import Role from "./Role";
 import Auth from "./Auth.model";
 import Collection from "./Collection.model";

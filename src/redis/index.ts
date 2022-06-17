@@ -1,5 +1,6 @@
 import "dotenv/config";
 import {Client} from "redis-om";
+
 import logger from "../utils/Logger";
 
 class RedisClient {

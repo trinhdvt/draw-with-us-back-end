@@ -1,8 +1,9 @@
 import {Inject, Service} from "typedi";
+import {NotFoundError} from "routing-controllers";
+
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomResponse from "../dto/response/RoomResponse";
 import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
-import {NotFoundError} from "routing-controllers";
 import StringUtils from "../utils/StringUtils";
 import Collection from "../models/Collection.model";
 import RoomConfig from "../dto/response/RoomConfig";
@@ -15,8 +16,6 @@ import AssertUtils from "../utils/AssertUtils";
 
 @Service()
 export default class RoomServices {
-    constructor() {}
-
     @Inject()
     private playerRepo: PlayerRepository;
 

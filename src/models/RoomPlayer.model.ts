@@ -1,4 +1,5 @@
 import {BelongsTo, Column, ForeignKey, Model, Table} from "sequelize-typescript";
+
 import Room from "./Room.model";
 import User from "./User.model";
 

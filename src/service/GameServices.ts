@@ -1,20 +1,20 @@
 import {Inject, Service} from "typedi";
-import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
 import {NotFoundError, UnauthorizedError} from "routing-controllers";
+
+import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
 import SocketServer from "../socket/SocketServer";
 import logger from "../utils/Logger";
 import DrawTopicDto, {IGameTopic} from "../dto/response/DrawTopicDto";
-import MLServices from "./MLServices";
 import Collection from "../models/Collection.model";
 import sequelize from "../models";
 import RoomRepository from "../repository/RoomRepository";
 import PlayerRepository from "../repository/PlayerRepository";
 import AssertUtils from "../utils/AssertUtils";
 
+import MLServices from "./MLServices";
+
 @Service()
 export default class GameServices {
-    constructor() {}
-
     @Inject()
     private mlServices: MLServices;
 

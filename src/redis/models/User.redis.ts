@@ -1,4 +1,5 @@
 import {Entity, Schema} from "redis-om";
+
 import RedisClient from "..";
 
 interface UserRedis {

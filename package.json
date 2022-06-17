@@ -11,7 +11,8 @@
         "clean": "rm -rf ./target/*",
         "build": "yarn clean && tsc",
         "start": "yarn build && yarn pm2-dev --node-args --trace-warnings target/server.js",
-        "format": "prettier --config .prettierrc.json 'src/**/*.ts' --write"
+        "format": "prettier --config .prettierrc.json 'src/**/*.ts' --write",
+        "lint": "eslint --fix --ext .ts ."
     },
     "dependencies": {
         "axios": "latest",
@@ -56,6 +57,10 @@
         "@types/node": "^17.0.25",
         "@types/sequelize": "^4.28.11",
         "@types/validator": "^13.7.2",
+        "@typescript-eslint/eslint-plugin": "latest",
+        "@typescript-eslint/parser": "latest",
+        "eslint": "^8.2.0",
+        "eslint-plugin-import": "^2.25.2",
         "pm2": "^5.2.0",
         "prettier": "2.6.2",
         "typescript": "^4.6.3"

@@ -1,4 +1,5 @@
 import {BelongsToMany, Column, HasMany, Model, Table} from "sequelize-typescript";
+
 import TopicSample from "./TopicSample.model";
 import Collection from "./Collection.model";
 import CollectionTopic from "./CollectionTopic.model";

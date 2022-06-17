@@ -1,4 +1,5 @@
 import {Column, ForeignKey, Model, Table} from "sequelize-typescript";
+
 import Collection from "./Collection.model";
 import DrawTopic from "./DrawTopic.model";
 

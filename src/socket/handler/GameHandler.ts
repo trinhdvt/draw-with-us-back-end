@@ -1,5 +1,6 @@
-import {IOType, SocketType} from "../SocketEvent";
 import {Container} from "typedi";
+
+import {IOType, SocketType} from "../SocketEvent";
 import logger from "../../utils/Logger";
 import GameServices from "../../service/GameServices";
 
