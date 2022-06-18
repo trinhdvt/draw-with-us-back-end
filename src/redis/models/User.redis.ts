@@ -6,6 +6,7 @@ interface UserRedis {
     name: string;
     sid: string;
     point: number;
+    avatar: string;
 }
 
 class UserRedis extends Entity {}
@@ -13,7 +14,8 @@ class UserRedis extends Entity {}
 const UserSchema = new Schema(UserRedis, {
     name: {type: "string"},
     sid: {type: "string"},
-    point: {type: "number"}
+    point: {type: "number"},
+    avatar: {type: "string"}
 });
 
 const UserRepo = async () => {

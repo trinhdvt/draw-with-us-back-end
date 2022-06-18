@@ -7,10 +7,13 @@ import StringUtils from "../utils/StringUtils";
 @Service()
 class PlayerRepository {
     async create(sid: string, expire?: string) {
+        const RANDOM_IMG = Math.ceil(Math.random() * 30);
+        const avatar = `${process.env.CDN_URL}/${RANDOM_IMG}.webp`;
         const playerData = {
-            sid: sid,
             name: StringUtils.randomName(),
-            point: 0
+            point: 0,
+            sid,
+            avatar
         };
 
         const userRepo = await UserRepo();

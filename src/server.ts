@@ -16,7 +16,6 @@ app.boostrap();
 
 // inject controller
 useExpressServer(app.getServer(), {
-    development: true,
     defaultErrorHandler: false,
     defaults: {
         paramOptions: {

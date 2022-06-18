@@ -1,7 +1,7 @@
 import {Inject, Service} from "typedi";
 
 import PlayerRepository from "../repository/PlayerRepository";
-import {IAnonymousUser} from "../dto/response/UserDto";
+import {IAnonymousUser} from "../interfaces/IUser";
 
 import RoomServices from "./RoomServices";
 
@@ -18,11 +18,12 @@ export default class UserServices {
      * @param sid - User's socket id
      */
     async createAnonymousUser(sid: string): Promise<IAnonymousUser> {
-        const {entityId, name} = await this.playerRepo.create(sid, "1d");
+        const {entityId, name, avatar} = await this.playerRepo.create(sid, "1d");
         return {
             eid: entityId,
             name,
-            sid
+            sid,
+            avatar
         };
     }
 

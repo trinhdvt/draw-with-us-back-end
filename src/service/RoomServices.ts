@@ -7,13 +7,13 @@ import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
 import StringUtils from "../utils/StringUtils";
 import Collection from "../models/Collection.model";
 import RoomConfig from "../dto/response/RoomConfig";
-import IPlayer from "../dto/response/PlayerDto";
 import SocketServer from "../socket/SocketServer";
 import logger from "../utils/Logger";
 import PlayerRepository from "../repository/PlayerRepository";
 import RoomRepository from "../repository/RoomRepository";
 import AssertUtils from "../utils/AssertUtils";
 import AppConfig from "../models/AppConfig.model";
+import {IPlayer} from "../interfaces/IUser";
 
 @Service()
 export default class RoomServices {
@@ -158,21 +158,21 @@ export default class RoomServices {
      * @param sid - Current player's socket id
      */
     async getPlayers(roomId: string, sid: string): Promise<IPlayer[]> {
-        const room = await this.checkPlayer(roomId, sid);
+        const {hostId, status, playerIds} = await this.checkPlayer(roomId, sid);
         const players = await this.playerRepo.getAll();
 
-        const playerIds = room.playerIds;
         const response = players
-            .filter(player => playerIds.indexOf(player.sid) != -1)
-            .map<IPlayer>(player => ({
-                name: player.name,
-                eid: player.entityId,
-                point: player.point,
-                isHost: room.hostId == player.sid
+            .filter(({sid}) => playerIds.includes(sid))
+            .map<IPlayer>(({avatar, entityId, name, point, sid}) => ({
+                isHost: hostId === sid,
+                eid: entityId,
+                name,
+                point,
+                avatar
             }))
             .sort((a, b) => (a.point > b.point ? -1 : 1));
 
-        if (room.status === RoomStatus.PLAYING) {
+        if (status === RoomStatus.PLAYING) {
             const MAX_TOP = 3;
             for (let i = 0; i < Math.min(response.length, MAX_TOP); i++) {
                 response[i].topk = i + 1;
