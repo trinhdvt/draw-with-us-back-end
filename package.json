@@ -15,6 +15,7 @@
         "lint": "eslint --fix --ext .ts ."
     },
     "dependencies": {
+        "@socket.io/admin-ui": "^0.3.0",
         "axios": "latest",
         "bcrypt": "^5.0.1",
         "body-parser": "^1.20.0",

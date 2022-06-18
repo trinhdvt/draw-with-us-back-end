@@ -291,6 +291,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@socket.io/admin-ui@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@socket.io/admin-ui@npm:0.3.0"
+  dependencies:
+    "@types/bcrypt": ~3.0.0
+    bcrypt: ~5.0.1
+    debug: ~4.3.1
+  peerDependencies:
+    socket.io: ">=3.1.0"
+  checksum: 313b8a20ee7e1a3dee742d248b34cc8b1867c0c1ed94a0d72db0dfd21de54035c2af8949158967f15f4d37831a94b175fc97db7900cb3562fe57e15e56190add
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:1":
   version: 1.1.2
   resolution: "@tootallnate/once@npm:1.1.2"
@@ -311,6 +324,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 063c32c7a519d64768dfc0169a319b8244d6a6cb50a355c93992b3c5fee1dbc236526a1111f0e7bb25abc8b0473e5f40a5edfeb8b33cad2a6ea35aa2d7d7db14
+  languageName: node
+  linkType: hard
+
+"@types/bcrypt@npm:~3.0.0":
+  version: 3.0.1
+  resolution: "@types/bcrypt@npm:3.0.1"
+  checksum: e8cdb677acabd0c6f6cdf3148feae73336c0fe471d55d42474ac3ecdb735434ab5a43338b337aeef71a1c8f9aa56572e9c9d035338ab19b3f3c8291e70d3eb4d
   languageName: node
   linkType: hard
 
@@ -967,7 +987,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bcrypt@npm:^5.0.1":
+"bcrypt@npm:^5.0.1, bcrypt@npm:~5.0.1":
   version: 5.0.1
   resolution: "bcrypt@npm:5.0.1"
   dependencies:
@@ -1703,6 +1723,7 @@ __metadata:
   resolution: "draw-with-us-back-end@workspace:."
   dependencies:
     "@faker-js/faker": ^6.3.1
+    "@socket.io/admin-ui": ^0.3.0
     "@types/bcrypt": ^5.0.0
     "@types/body-parser": ^1.19.2
     "@types/compression": ^1.7.2
