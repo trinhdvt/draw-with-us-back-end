@@ -12,17 +12,21 @@ import PlayerRepository from "../repository/PlayerRepository";
 import AssertUtils from "../utils/AssertUtils";
 
 import MLServices from "./MLServices";
+import RoomServices from "./RoomServices";
 
 @Service()
 export default class GameServices {
-    @Inject()
-    private mlServices: MLServices;
-
     @Inject()
     private roomRepo: RoomRepository;
 
     @Inject()
     private playerRepo: PlayerRepository;
+
+    @Inject()
+    private mlServices: MLServices;
+
+    @Inject()
+    private roomServices: RoomServices;
 
     /**
      * Start the game
@@ -36,6 +40,11 @@ export default class GameServices {
 
         const {roomId} = await this.prepareGame(room);
         SocketServer.io.to(roomId).emit("room:update");
+        this.roomServices.sendMessage(roomId, {
+            type: "warn",
+            from: "System ⚙️: ",
+            message: "Game has started!!!"
+        });
 
         // trigger next-turn game
         await this.nextTurn(roomId);
@@ -60,7 +69,7 @@ export default class GameServices {
         const players = await this.playerRepo.getAll();
         await Promise.all(
             players
-                .filter(({sid}) => playerIds.indexOf(sid) != -1)
+                .filter(({sid}) => playerIds.includes(sid))
                 .map(player => {
                     player.point = 0;
                     return this.playerRepo.save(player);
@@ -85,6 +94,11 @@ export default class GameServices {
             logger.info("No more topics");
             await this.roomRepo.save(room);
             SocketServer.io.to(roomId).emit("room:update");
+            this.roomServices.sendMessage(roomId, {
+                type: "error",
+                from: "System ⚙️: ",
+                message: "Game has finished!!! Let's see the result👀"
+            });
             return;
         }
 
@@ -94,10 +108,20 @@ export default class GameServices {
 
         logger.info(`Next turn in room ${roomId} with topic ${currentTopic.nameVi}`);
         SocketServer.io.to(roomId).emit("game:nextTurn", currentTopic);
+        this.roomServices.sendMessage(roomId, {
+            type: "warn",
+            from: "System ⚙️: ",
+            message: `The next topic is ${currentTopic.nameVi}🔥`
+        });
 
         const {timeOut} = room;
         return setTimeout(() => {
             SocketServer.io.to(roomId).emit("game:endTurn");
+            this.roomServices.sendMessage(roomId, {
+                type: "warn",
+                from: "System ⚙️: ",
+                message: "Time out!!! Let's take a rest⌛️"
+            });
             setTimeout(async () => {
                 await this.nextTurn(roomId);
             }, 3e3);
@@ -129,6 +153,10 @@ export default class GameServices {
                 player.point += CORRECT_POINT;
                 await this.playerRepo.save(player);
             }
+            this.roomServices.sendMessage(roomId, {
+                type: "success",
+                message: `${player.name} has done a correct drawing!👏`
+            });
         }
 
         return isCorrect;

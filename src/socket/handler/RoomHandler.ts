@@ -11,17 +11,15 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
     socket.on("room:join", async (eid: string, callback) => {
         try {
             const roomId = await roomServices.joinRoom(sid, eid);
-            callback({
-                roomId: roomId
-            });
-
-            logger.debug(`Client ${sid} joined room ${eid}`);
-        } catch (e) {
-            logger.error(e);
-            callback({
-                message: e.message
-            });
+            callback({roomId});
+        } catch ({message}) {
+            callback({message});
         }
+    });
+
+    socket.on("room:msg", (roomId, payload) => {
+        if (!socket.rooms.has(roomId)) return;
+        roomServices.sendMessage(roomId, payload);
     });
 
     socket.on("room:exit", async (roomId: string) => {

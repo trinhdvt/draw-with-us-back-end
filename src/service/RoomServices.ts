@@ -14,6 +14,7 @@ import RoomRepository from "../repository/RoomRepository";
 import AssertUtils from "../utils/AssertUtils";
 import AppConfig from "../models/AppConfig.model";
 import {IPlayer} from "../interfaces/IUser";
+import {IMessage} from "../interfaces/IMessage";
 
 @Service()
 export default class RoomServices {
@@ -89,18 +90,23 @@ export default class RoomServices {
     async joinRoom(sid: string, eid: string) {
         const room = await this.roomRepo.getById(eid);
         AssertUtils.isExist(room, new NotFoundError("Room not found"));
-
-        if (room.playerIds.indexOf(sid) == -1) {
-            room.playerIds.push(sid);
-        }
-
         AssertUtils.isTrue(
-            room.playerIds.length <= room.maxUsers,
+            room.playerIds.length < room.maxUsers,
             new NotFoundError("Room is full")
         );
 
+        if (!room.playerIds.includes(sid)) {
+            room.playerIds.push(sid);
+        }
+
         await this.roomRepo.save(room);
         SocketServer.joinRoom(sid, room.roomId);
+        const newPlayer = await this.playerRepo.getBySid(sid);
+        this.sendMessage(room.roomId, {
+            from: "System ⚙️: ",
+            message: `${newPlayer?.name} joined the room!`,
+            type: "success"
+        });
         return room.roomId;
     }
 
@@ -222,5 +228,12 @@ export default class RoomServices {
             user.point = 0;
             await this.playerRepo.save(user);
         }
+    }
+
+    sendMessage(roomId: string, payload: IMessage) {
+        SocketServer.io.to(roomId).emit("room:msg", {
+            ...payload,
+            id: Math.random().toString(36).substring(2)
+        });
     }
 }

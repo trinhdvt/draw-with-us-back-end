@@ -2,11 +2,13 @@ import {Server, Socket} from "socket.io";
 
 import {IGameTopic} from "../dto/response/DrawTopicDto";
 import {IAnonymousUser} from "../interfaces/IUser";
+import {IMessage} from "../interfaces/IMessage";
 
 interface ServerToClientEvents {
     "room:update": () => void;
     "game:nextTurn": (topic: IGameTopic) => void;
     "game:endTurn": () => void;
+    "room:msg": (payload: IMessage) => void;
 }
 
 interface ClientToServerEvents {
@@ -20,6 +22,7 @@ interface ClientToServerEvents {
         image: string,
         callback: (e: {isCorrect: boolean}) => void
     ) => void;
+    "room:msg": (roomId: string, payload: IMessage) => void;
 }
 
 type IOType = Server<ClientToServerEvents, ServerToClientEvents>;
