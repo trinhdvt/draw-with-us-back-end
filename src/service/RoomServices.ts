@@ -8,7 +8,6 @@ import StringUtils from "../utils/StringUtils";
 import Collection from "../models/Collection.model";
 import RoomConfig from "../dto/response/RoomConfig";
 import SocketServer from "../socket/SocketServer";
-import logger from "../utils/Logger";
 import PlayerRepository from "../repository/PlayerRepository";
 import RoomRepository from "../repository/RoomRepository";
 import AssertUtils from "../utils/AssertUtils";
@@ -206,11 +205,9 @@ export default class RoomServices {
             const room = rooms[i];
             AssertUtils.isExist(room, new NotFoundError("Room not found"));
 
-            logger.debug(`Removing player ${sid} from room ${room.roomId}`);
             room.playerIds = room.playerIds.filter(id => id !== sid);
             if (room.playerIds.length == 0) {
                 await this.roomRepo.remove(room);
-                logger.debug(`Room ${room.roomId} is empty, removing it`);
             } else {
                 if (room.hostId == sid) {
                     room.hostId = room.playerIds[0];

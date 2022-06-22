@@ -137,10 +137,7 @@ export default class GameServices {
     async check(sid: string, roomId: string, image: string): Promise<boolean> {
         const room = await this.roomRepo.getByShortId(roomId);
         AssertUtils.isExist(room, new NotFoundError("Room not found"));
-        AssertUtils.isTrue(
-            room.playerIds.indexOf(sid) != -1,
-            new UnauthorizedError("Room not found")
-        );
+        AssertUtils.isTrue(room.playerIds.includes(sid), new UnauthorizedError("Room not found"));
 
         // predict player's drawn image with current topic
         const currentTopic: IGameTopic = JSON.parse(room.currentTopic);
@@ -157,6 +154,7 @@ export default class GameServices {
                 type: "success",
                 message: `${player.name} has done a correct drawing!👏`
             });
+            SocketServer.io.to(roomId).emit("room:update");
         }
 
         return isCorrect;

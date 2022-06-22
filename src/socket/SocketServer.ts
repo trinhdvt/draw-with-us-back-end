@@ -46,6 +46,7 @@ export default class SocketServer {
     public static joinRoom(sid: string, roomId: string) {
         SocketServer.io.in(sid).socketsJoin(roomId);
         SocketServer.io.to(roomId).emit("room:update");
+        SocketServer.io.emit("list-room:update");
     }
 
     /**
@@ -56,6 +57,7 @@ export default class SocketServer {
     public static leaveRoom(sid: string, roomId: string) {
         SocketServer.io.in(sid).socketsLeave(roomId);
         SocketServer.io.to(roomId).emit("room:update");
+        SocketServer.io.emit("list-room:update");
     }
 
     /**
