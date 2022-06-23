@@ -3,7 +3,6 @@ import {NotFoundError, UnauthorizedError} from "routing-controllers";
 
 import {RoomRedis, RoomStatus} from "../redis/models/Room.redis";
 import SocketServer from "../socket/SocketServer";
-import logger from "../utils/Logger";
 import DrawTopicDto, {IGameTopic} from "../dto/response/DrawTopicDto";
 import Collection from "../models/Collection.model";
 import sequelize from "../models";
@@ -91,7 +90,6 @@ export default class GameServices {
 
         if (room.topics.length == 0) {
             room.status = RoomStatus.FINISHED;
-            logger.info("No more topics");
             await this.roomRepo.save(room);
             SocketServer.io.to(roomId).emit("room:update");
             this.roomServices.sendMessage(roomId, {
@@ -104,9 +102,10 @@ export default class GameServices {
 
         const currentTopic: IGameTopic = JSON.parse(room.topics.shift());
         room.currentTopic = JSON.stringify(currentTopic);
+        const {timeOut} = room;
+        room.endTurnTime = new Date().getTime() + timeOut * 1e3;
         await this.roomRepo.save(room);
 
-        logger.info(`Next turn in room ${roomId} with topic ${currentTopic.nameVi}`);
         SocketServer.io.to(roomId).emit("game:nextTurn", currentTopic);
         this.roomServices.sendMessage(roomId, {
             type: "warn",
@@ -114,7 +113,6 @@ export default class GameServices {
             message: `The next topic is ${currentTopic.nameVi}🔥`
         });
 
-        const {timeOut} = room;
         return setTimeout(() => {
             SocketServer.io.to(roomId).emit("game:endTurn");
             this.roomServices.sendMessage(roomId, {
@@ -129,7 +127,7 @@ export default class GameServices {
     }
 
     /**
-     * Check if player's image is correct
+     * Judge player drawn image is correct or not
      * @param sid - Player's socket id
      * @param roomId - Room's id
      * @param image - Image's base64
@@ -139,15 +137,25 @@ export default class GameServices {
         AssertUtils.isExist(room, new NotFoundError("Room not found"));
         AssertUtils.isTrue(room.playerIds.includes(sid), new UnauthorizedError("Room not found"));
 
+        const submittedTime = new Date().getTime();
         // predict player's drawn image with current topic
         const currentTopic: IGameTopic = JSON.parse(room.currentTopic);
         const isCorrect = await this.mlServices.predict(image, currentTopic, sid);
 
         if (isCorrect) {
             const player = await this.playerRepo.getBySid(sid);
+
             const CORRECT_POINT = 10;
+            const BONUS_POINT = 10;
+            const {timeOut, endTurnTime} = room;
+            const timeLeft = (endTurnTime - submittedTime) / 1e3;
+            let point = CORRECT_POINT;
+            if (timeLeft >= timeOut / 2) {
+                point += BONUS_POINT * (timeLeft / timeOut);
+            }
+
             if (player) {
-                player.point += CORRECT_POINT;
+                player.point += Math.floor(point);
                 await this.playerRepo.save(player);
             }
             this.roomServices.sendMessage(roomId, {

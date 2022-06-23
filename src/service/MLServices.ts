@@ -29,8 +29,6 @@ export default class MLServices {
      */
     async predict(image: string, topic: IGameTopic, sid?: string): Promise<boolean> {
         const isAvailable = await this.ping();
-        logger.debug(`ML server is available: ${isAvailable}`);
-
         if (isAvailable) {
             const {data} = await this.mlServer.post(
                 "/predict/v1",
@@ -42,10 +40,9 @@ export default class MLServices {
             return this.compare(topic, data);
         }
 
+        // simulate purpose only
         // delay for 2 seconds
         await this.delay(2000);
-
-        // predict player's drawn image with topic
         return true;
     }
 
