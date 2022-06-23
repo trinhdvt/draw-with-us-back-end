@@ -1,3 +1,5 @@
+import {hostname} from "os";
+
 import {Service} from "typedi";
 import {Get, HttpCode, JsonController} from "routing-controllers";
 import {StatusCodes} from "http-status-codes";
@@ -10,7 +12,7 @@ export default class AppConfigController {
     @Get("/")
     @HttpCode(StatusCodes.OK)
     async greeting() {
-        return {message: "Hello World"};
+        return {message: `${hostname()}#${process.pid}`};
     }
 
     @Get("/app")

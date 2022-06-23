@@ -4,6 +4,9 @@ import {hostname} from "os";
 import {Server} from "socket.io";
 import {CorsOptions} from "cors";
 import {instrument} from "@socket.io/admin-ui";
+import {createAdapter} from "@socket.io/redis-adapter";
+
+import {createClient} from "redis";
 
 import {IOType} from "./SocketEvent";
 import {registerGameHandler, registerRoomHandler, registerUserHandler} from "./handler";
@@ -26,7 +29,12 @@ export default class SocketServer {
                 namespaceName: "/admin"
             });
 
-            this.register();
+            const pubClient = createClient({url: process.env.REDIS_URL});
+            const subClient = pubClient.duplicate();
+            Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+                SocketServer.io.adapter(createAdapter(pubClient, subClient));
+                this.register();
+            });
         }
     }
 

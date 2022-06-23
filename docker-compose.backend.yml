@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  backend:
+    image: trinhvideo123/draw-with-us:backend
+    ports:
+      - '8888:8888'
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    restart: unless-stopped

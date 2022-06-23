@@ -9,6 +9,7 @@ import sequelize from "../models";
 import RoomRepository from "../repository/RoomRepository";
 import PlayerRepository from "../repository/PlayerRepository";
 import AssertUtils from "../utils/AssertUtils";
+import logger from "../utils/Logger";
 
 import MLServices from "./MLServices";
 import RoomServices from "./RoomServices";
@@ -46,6 +47,7 @@ export default class GameServices {
         });
 
         // trigger next-turn game
+        logger.info("Game loop has started");
         await this.nextTurn(roomId);
     }
 
@@ -97,6 +99,7 @@ export default class GameServices {
                 from: "System ⚙️: ",
                 message: "Game has finished!!! Let's see the result👀"
             });
+            logger.info("Game loop has finished");
             return;
         }
 
