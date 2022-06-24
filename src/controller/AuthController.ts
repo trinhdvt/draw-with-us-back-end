@@ -1,10 +1,8 @@
-import {BodyParam, HttpCode, JsonController, Post} from "routing-controllers";
+import {BodyParam, HttpCode, JsonController, Post, UnauthorizedError} from "routing-controllers";
 import {Inject, Service} from "typedi";
 import {StatusCodes} from "http-status-codes";
-import axios from "axios";
 
 import AuthServices from "../service/AuthServices";
-import {IFbProfile} from "../interfaces/IOAuth";
 
 @Service()
 @JsonController()
@@ -14,21 +12,18 @@ export default class AuthController {
 
     @Post("/login/fb")
     @HttpCode(StatusCodes.OK)
-    async fbLogin(@BodyParam("access_token") accessToken: string) {
-        const {data} = await axios.get<IFbProfile>(
-            `https://graph.facebook.com/me?fields=name,email,picture.width(100).height(100)&access_token=${accessToken}`
-        );
-        const {
-            name,
-            email,
-            picture: {
-                data: {url}
-            }
-        } = data;
-
-        const tokenPayload = {name, email};
-        const token = this.authServices.createAccessToken(tokenPayload);
-
-        return {name, avatar: url, token};
+    async fbLogin(@BodyParam("code") code: string) {
+        try {
+            const accessToken = await this.authServices.getFbAccessToken(code);
+            console.log(accessToken);
+            const {email, name, picture} = await this.authServices.getFbProfile(accessToken);
+            const tokenPayload = {name, email};
+            console.log(tokenPayload);
+            const token = this.authServices.createAccessToken(tokenPayload);
+            return {name: name, avatar: picture.data.url, token};
+        } catch (e) {
+            console.log(e);
+            throw new UnauthorizedError("Fb login failed");
+        }
     }
 }
