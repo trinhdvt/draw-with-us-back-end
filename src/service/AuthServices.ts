@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import axios from "axios";
 
 import {IFbProfile} from "../interfaces/IOAuth";
+import User from "../models/User.model";
 
 @Service()
 export default class AuthServices {
@@ -16,6 +17,16 @@ export default class AuthServices {
 
     createAccessToken(payload: string | object, expireIn?: string | number) {
         return jwt.sign(payload, this.SECRET, {expiresIn: expireIn ?? this.TOKEN_TIME});
+    }
+
+    async fbLogin(code: string) {
+        const access_token = await this.getFbAccessToken(code);
+        const {name, email, picture} = await this.getFbProfile(access_token);
+        const user = await this.createSocialAccount(name, email, picture.data.url);
+
+        const tokenPayload = {name, email, id: user.id, avatar: picture.data.url};
+        const token = this.createAccessToken(tokenPayload);
+        return {token};
     }
 
     async getFbAccessToken(code: string) {
@@ -48,5 +59,13 @@ export default class AuthServices {
             }
         );
         return data;
+    }
+
+    async createSocialAccount(name: string, email: string, avatar: string) {
+        let user = await User.findOne({where: {email}});
+        if (!user) {
+            user = await User.create({name, email, avatar});
+        }
+        return user;
     }
 }

@@ -23,10 +23,7 @@ export default class User extends Model {
     email: string;
 
     @Column
-    password: string;
-
-    @Column
-    image: string;
+    avatar: string;
 
     @Column({
         type: DataType.ENUM({values: Object.keys(Role)}),

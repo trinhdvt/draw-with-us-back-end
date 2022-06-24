@@ -14,13 +14,7 @@ export default class AuthController {
     @HttpCode(StatusCodes.OK)
     async fbLogin(@BodyParam("code") code: string) {
         try {
-            const accessToken = await this.authServices.getFbAccessToken(code);
-            console.log(accessToken);
-            const {email, name, picture} = await this.authServices.getFbProfile(accessToken);
-            const tokenPayload = {name, email};
-            console.log(tokenPayload);
-            const token = this.authServices.createAccessToken(tokenPayload);
-            return {name: name, avatar: picture.data.url, token};
+            return await this.authServices.fbLogin(code);
         } catch (e) {
             console.log(e);
             throw new UnauthorizedError("Fb login failed");
