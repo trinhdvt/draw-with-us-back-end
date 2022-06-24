@@ -1,6 +1,9 @@
 import {UserRedis} from "../redis/models/User.redis";
 
-type IAnonymousUser = Pick<UserRedis, "sid" | "name" | "avatar"> & {
+type IUserInfo = Pick<UserRedis, "name" | "avatar">;
+
+type IAnonymousUser = IUserInfo & {
+    sid: string;
     eid: string;
 };
 
@@ -10,4 +13,4 @@ type IPlayer = Partial<IAnonymousUser> & {
     point: number;
 };
 
-export type {IAnonymousUser, IPlayer};
+export type {IAnonymousUser, IPlayer, IUserInfo};

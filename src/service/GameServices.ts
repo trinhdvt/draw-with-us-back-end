@@ -138,12 +138,16 @@ export default class GameServices {
     async check(sid: string, roomId: string, image: string): Promise<boolean> {
         const room = await this.roomRepo.getByShortId(roomId);
         AssertUtils.isExist(room, new NotFoundError("Room not found"));
-        AssertUtils.isTrue(room.playerIds.includes(sid), new UnauthorizedError("Room not found"));
+        const {playerIds, currentTopic, status} = room;
+        AssertUtils.isTrue(
+            playerIds.includes(sid) && status === RoomStatus.PLAYING,
+            new UnauthorizedError("Room not found")
+        );
 
         const submittedTime = new Date().getTime();
         // predict player's drawn image with current topic
-        const currentTopic: IGameTopic = JSON.parse(room.currentTopic);
-        const isCorrect = await this.mlServices.predict(image, currentTopic, sid);
+        const topic: IGameTopic = JSON.parse(currentTopic);
+        const isCorrect = await this.mlServices.predict(image, topic, sid);
 
         if (isCorrect) {
             const player = await this.playerRepo.getBySid(sid);

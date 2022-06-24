@@ -15,8 +15,7 @@ const registerUserHandler = (io: IOType, socket: SocketType) => {
     });
 
     socket.on("user:update", async arg => {
-        const {eid, name} = arg;
-        await userServices.updateAnonymousUser(eid, name);
+        await userServices.updateAnonymousUser(sid, arg);
     });
 
     socket.on("disconnecting", async () => {

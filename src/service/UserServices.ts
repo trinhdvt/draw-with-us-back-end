@@ -1,7 +1,7 @@
 import {Inject, Service} from "typedi";
 
 import PlayerRepository from "../repository/PlayerRepository";
-import {IAnonymousUser} from "../interfaces/IUser";
+import {IAnonymousUser, IUserInfo} from "../interfaces/IUser";
 
 import RoomServices from "./RoomServices";
 
@@ -40,14 +40,15 @@ export default class UserServices {
     }
 
     /**
-     * Update user's name
-     * @param eid - User's entity ID
-     * @param name - New user's name
+     * Update user's info
+     * @param sid - User's socket id
+     * @param data - User's name and avatar
      */
-    async updateAnonymousUser(eid: string, name: string) {
-        const user = await this.playerRepo.getById(eid);
+    async updateAnonymousUser(sid: string, {name, avatar}: IUserInfo) {
+        const user = await this.playerRepo.getBySid(sid);
         if (user) {
             user.name = name;
+            user.avatar = avatar;
             await this.playerRepo.save(user);
         }
     }
