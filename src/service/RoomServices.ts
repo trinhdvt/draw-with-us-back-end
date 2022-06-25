@@ -32,11 +32,12 @@ export default class RoomServices {
         const host = await this.playerRepo.getById(eid);
         AssertUtils.isExist(host, new NotFoundError("Player not found"));
 
+        const roomName = roomDto.name?.trim() ?? `${host.name}'s room`;
         const roomId = StringUtils.randomId();
         const room = await this.roomRepo.create({
             hostId: host.sid,
             roomId: roomId,
-            roomName: host.name,
+            roomName: roomName,
             image: host.avatar,
             maxUsers: maxUsers,
             timeOut: timeOut,
