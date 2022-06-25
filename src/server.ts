@@ -7,6 +7,7 @@ import {Container} from "typedi";
 import App from "./app";
 import {GlobalErrorHandler} from "./middlewares/GlobalErrorHandler";
 import SocketServer from "./socket/SocketServer";
+import {CurrentUserChecker, PreAuthorize} from "./middlewares/JwtFilterMiddleware";
 
 useContainer(Container);
 
@@ -28,7 +29,9 @@ useExpressServer(app.getServer(), {
     },
     routePrefix: "/api",
     controllers: [__dirname + "/controller/*.js"],
-    middlewares: [GlobalErrorHandler]
+    middlewares: [GlobalErrorHandler],
+    authorizationChecker: PreAuthorize,
+    currentUserChecker: CurrentUserChecker
 });
 
 // register socket.io

@@ -1,9 +1,11 @@
 import {Service} from "typedi";
-import jwt from "jsonwebtoken";
+import jwt, {JwtPayload, TokenExpiredError} from "jsonwebtoken";
 import axios from "axios";
+import {ForbiddenError} from "routing-controllers";
 
 import {IFbProfile} from "../interfaces/IOAuth";
 import User from "../models/User.model";
+import IUserCredential from "../interfaces/IUserCredential";
 
 @Service()
 export default class AuthServices {
@@ -24,7 +26,7 @@ export default class AuthServices {
         const {name, email, picture} = await this.getFbProfile(access_token);
         const user = await this.createSocialAccount(name, email, picture.data.url);
 
-        const tokenPayload = {name, email, id: user.id, avatar: picture.data.url};
+        const tokenPayload = {name, email, id: user.id, avatar: picture.data.url, role: user.role};
         const token = this.createAccessToken(tokenPayload);
         return {token};
     }
@@ -67,5 +69,25 @@ export default class AuthServices {
             user = await User.create({name, email, avatar});
         }
         return user;
+    }
+
+    isValidJwt(token: string, ignoreExpiration = false) {
+        try {
+            jwt.verify(token, this.SECRET, {ignoreExpiration});
+            return true;
+        } catch (e) {
+            if (e instanceof TokenExpiredError && !ignoreExpiration) return false;
+            throw new ForbiddenError("Invalid token");
+        }
+    }
+
+    getPayLoad(token: string): IUserCredential {
+        try {
+            const decoded = jwt.verify(token, this.SECRET, {ignoreExpiration: true}) as JwtPayload;
+            const {id, email, role} = decoded;
+            return {id, email, role};
+        } catch (e) {
+            throw new ForbiddenError("Invalid token");
+        }
     }
 }
