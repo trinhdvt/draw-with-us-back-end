@@ -40,4 +40,5 @@ class CollectionDto implements ICollection {
 }
 
 export default CollectionDto;
+export {CollectionType};
 export type {ICollection};

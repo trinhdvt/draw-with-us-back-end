@@ -1,8 +1,9 @@
 import {Service} from "typedi";
 import {BadRequestError, UnauthorizedError} from "routing-controllers";
+import {Op} from "sequelize";
 
 import Collection from "../models/Collection.model";
-import CollectionDto from "../dto/response/CollectionDto";
+import CollectionDto, {CollectionType} from "../dto/response/CollectionDto";
 import DrawTopic from "../models/DrawTopic.model";
 import ICollectionPayload from "../dto/request/ICollectionPayload";
 import User from "../models/User.model";
@@ -12,12 +13,21 @@ import CollectionTopic from "../models/CollectionTopic.model";
 
 @Service()
 class CollectionServices {
-    async getAll() {
-        const collections = await Collection.findAll({
+    async getAll(currentUserId: string | null) {
+        const publicCollections = await Collection.findAll({
+            where: {
+                [Op.or]: [{isPublic: true}, {isOfficial: true}, {userId: currentUserId}]
+            },
             include: [DrawTopic]
         });
 
-        return collections.map(collection => new CollectionDto(collection));
+        return publicCollections.map(collection => {
+            const dto = new CollectionDto(collection);
+            if (Number(currentUserId) === collection.userId) {
+                dto.type = CollectionType.YOUR;
+            }
+            return dto;
+        });
     }
 
     async createCollection(authorId: string, {isPublic, name, topicIds}: ICollectionPayload) {

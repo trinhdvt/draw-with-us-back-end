@@ -10,11 +10,14 @@ export const PreAuthorize = async (action: Action, roles: string[]): Promise<boo
     if (!authHeader) return false;
 
     const token = authHeader.replace("Bearer ", "");
-    if (authServices.isValidJwt(token)) {
-        if (roles.length === 0) return true;
-
-        const {role} = authServices.getPayLoad(token);
-        return roles.indexOf(role) != -1;
+    try {
+        if (authServices.isValidJwt(token)) {
+            if (roles.length === 0) return true;
+            const {role} = authServices.getPayLoad(token);
+            return roles.indexOf(role) != -1;
+        }
+    } catch (e) {
+        return false;
     }
     return false;
 };

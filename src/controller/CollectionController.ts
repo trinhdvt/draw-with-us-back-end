@@ -22,8 +22,8 @@ export default class CollectionController {
 
     @Get("/collections")
     @HttpCode(StatusCodes.OK)
-    async getAll() {
-        return await this.services.getAll();
+    async getAll(@CurrentUser({required: false}) author: IUserCredential) {
+        return await this.services.getAll(author?.id ?? null);
     }
 
     @Post("/collection")
