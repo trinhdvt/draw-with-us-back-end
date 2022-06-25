@@ -13,6 +13,7 @@ interface RoomResponse {
     maxUsers: number;
     currentUsers: number;
     collectionName: string;
+    image?: string;
 }
 
 export default RoomResponse;

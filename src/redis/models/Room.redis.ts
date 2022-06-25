@@ -42,6 +42,7 @@ interface RoomRedis {
      */
     status: RoomStatus;
     endTurnTime: number;
+    image: string;
 }
 
 class RoomRedis extends Entity {}
@@ -58,7 +59,8 @@ const RoomSchema = new Schema(RoomRedis, {
     topics: {type: "string[]"},
     status: {type: "string"},
     currentTopic: {type: "string"},
-    endTurnTime: {type: "number"}
+    endTurnTime: {type: "number"},
+    image: {type: "string"}
 });
 
 const RoomRepo = async () => {

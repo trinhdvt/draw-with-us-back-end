@@ -37,6 +37,7 @@ export default class RoomServices {
             hostId: host.sid,
             roomId: roomId,
             roomName: host.name,
+            image: host.avatar,
             maxUsers: maxUsers,
             timeOut: timeOut,
             playerIds: [host.sid],
@@ -77,7 +78,8 @@ export default class RoomServices {
             currentUsers: room.playerIds.length,
             collectionName: room.collectionName,
             id: room.roomId,
-            name: room.roomName
+            name: room.roomName,
+            image: room.image
         }));
     }
 
