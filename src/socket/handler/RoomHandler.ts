@@ -10,8 +10,8 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
 
     socket.on("room:join", async (payload, callback) => {
         try {
-            const roomId = await roomServices.joinRoom({...payload, sid});
-            callback({roomId});
+            const {roomId, onMiddleGame} = await roomServices.joinRoom({...payload, sid});
+            callback({roomId, onMiddleGame});
         } catch ({message}) {
             callback({message});
         }

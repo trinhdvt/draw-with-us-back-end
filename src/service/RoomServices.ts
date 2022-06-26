@@ -114,7 +114,6 @@ export default class RoomServices {
             const isCorrectPass = await StringUtils.hashCompare(password, room.password);
             AssertUtils.isTrue(isCorrectPass, new NotFoundError("Password is incorrect"));
         }
-
         if (!room.playerIds.includes(sid)) room.playerIds.push(sid);
 
         await this.roomRepo.save(room);
@@ -125,7 +124,10 @@ export default class RoomServices {
             message: `${newPlayer?.name} joined the room!`,
             type: "success"
         });
-        return room.roomId;
+        return {
+            roomId: room.roomId,
+            onMiddleGame: room.status === RoomStatus.PLAYING
+        };
     }
 
     /**
