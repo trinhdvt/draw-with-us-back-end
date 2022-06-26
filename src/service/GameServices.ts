@@ -99,6 +99,7 @@ export default class GameServices {
                 from: "System ⚙️: ",
                 message: "Game has finished!!! Let's see the result👀"
             });
+            SocketServer.io.to(roomId).emit("game:finish");
             logger.info("Game loop has finished");
             return;
         }

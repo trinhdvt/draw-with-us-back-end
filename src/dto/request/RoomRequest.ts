@@ -15,4 +15,6 @@ export default class RoomRequest {
 
     @IsNotEmpty()
     collectionId!: string;
+
+    password?: string;
 }

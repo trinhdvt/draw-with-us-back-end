@@ -3,11 +3,13 @@ import {Server, Socket} from "socket.io";
 import {IGameTopic} from "../dto/response/DrawTopicDto";
 import {IAnonymousUser, IUserInfo} from "../interfaces/IUser";
 import {IMessage} from "../interfaces/IMessage";
+import {IRoomJoinEvent} from "../interfaces/IRoom";
 
 interface ServerToClientEvents {
     "room:update": () => void;
     "game:nextTurn": (topic: IGameTopic) => void;
     "game:endTurn": () => void;
+    "game:finish": () => void;
     "room:msg": (payload: IMessage) => void;
     "list-room:update": () => void;
 }
@@ -15,7 +17,7 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {
     "user:init": (callback: (e: IAnonymousUser) => void) => void;
     "user:update": (arg: IUserInfo) => void;
-    "room:join": (eid: string, callback: (e: Record<string, string>) => void) => void;
+    "room:join": (payload: IRoomJoinEvent, callback: (e: Record<string, string>) => void) => void;
     "room:exit": (roomId: string) => void;
     "game:start": () => void;
     "game:predict": (

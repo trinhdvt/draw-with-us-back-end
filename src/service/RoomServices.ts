@@ -14,6 +14,7 @@ import AssertUtils from "../utils/AssertUtils";
 import AppConfig from "../models/AppConfig.model";
 import {IPlayer} from "../interfaces/IUser";
 import {IMessage} from "../interfaces/IMessage";
+import {IRoomJoinData} from "../interfaces/IRoom";
 
 @Service()
 export default class RoomServices {
@@ -23,14 +24,17 @@ export default class RoomServices {
     @Inject()
     private roomRepo: RoomRepository;
 
-    async create(eid: string, roomDto: RoomRequest): Promise<{id: string}> {
+    async create(hostEid: string, roomDto: RoomRequest): Promise<{id: string}> {
         const {maxUsers, timeOut, collectionId} = roomDto;
 
         const collection = await Collection.findByPk(Number(collectionId));
         AssertUtils.isExist(collection, new NotFoundError("Collection not found"));
 
-        const host = await this.playerRepo.getById(eid);
+        const host = await this.playerRepo.getById(hostEid);
         AssertUtils.isExist(host, new NotFoundError("Player not found"));
+
+        let roomHashPassword = "";
+        if (roomDto.password) roomHashPassword = await StringUtils.hash(roomDto.password);
 
         const roomName = roomDto.name?.trim() ?? `${host.name}'s room`;
         const roomId = StringUtils.randomId();
@@ -38,6 +42,7 @@ export default class RoomServices {
             hostId: host.sid,
             roomId: roomId,
             roomName: roomName,
+            password: roomHashPassword,
             image: host.avatar,
             maxUsers: maxUsers,
             timeOut: timeOut,
@@ -54,7 +59,7 @@ export default class RoomServices {
         };
     }
 
-    async validateCreateRoomParams({maxUsers, timeOut}: RoomRequest) {
+    async validateCreateRoomParams({maxUsers, timeOut, password}: RoomRequest) {
         const {room} = await AppConfig.findByPk(1);
 
         AssertUtils.isTrue(
@@ -65,6 +70,12 @@ export default class RoomServices {
             room.maxUsers.includes(maxUsers),
             new BadRequestError("Max users is not valid")
         );
+        if (password) {
+            AssertUtils.isTrue(
+                password.length >= 3 && password.length <= 20,
+                new BadRequestError("Password's length is must be between 3 and 20")
+            );
+        }
     }
 
     /**
@@ -80,7 +91,8 @@ export default class RoomServices {
             collectionName: room.collectionName,
             id: room.roomId,
             name: room.roomName,
-            image: room.image
+            image: room.image,
+            isPrivate: !!room.password
         }));
     }
 
@@ -88,8 +100,9 @@ export default class RoomServices {
      * Add user to room (redis-only)
      * @param sid - User's socket id
      * @param eid - Room's entity ID
+     * @param password - Room's password (for private room)
      */
-    async joinRoom(sid: string, eid: string) {
+    async joinRoom({eid, sid, password}: IRoomJoinData) {
         const room = await this.roomRepo.getById(eid);
         AssertUtils.isExist(room, new NotFoundError("Room not found"));
         AssertUtils.isTrue(
@@ -97,9 +110,12 @@ export default class RoomServices {
             new NotFoundError("Room is full")
         );
 
-        if (!room.playerIds.includes(sid)) {
-            room.playerIds.push(sid);
+        if (room.password) {
+            const isCorrectPass = await StringUtils.hashCompare(password, room.password);
+            AssertUtils.isTrue(isCorrectPass, new NotFoundError("Password is incorrect"));
         }
+
+        if (!room.playerIds.includes(sid)) room.playerIds.push(sid);
 
         await this.roomRepo.save(room);
         SocketServer.joinRoom(sid, room.roomId);
@@ -117,7 +133,9 @@ export default class RoomServices {
      */
     async findRoom() {
         const rooms = await this.getAll();
-        const playableRooms = rooms.filter(room => room.currentUsers < room.maxUsers);
+        const playableRooms = rooms.filter(
+            room => room.currentUsers < room.maxUsers && !room.isPrivate
+        );
         AssertUtils.isTrue(playableRooms.length > 0, new NotFoundError("No room available"));
 
         const randomIdx = Math.floor(Math.random() * playableRooms.length);
@@ -156,7 +174,8 @@ export default class RoomServices {
             timeOut: room.timeOut,
             eid: room.entityId,
             name: room.roomName,
-            isHost: room.hostId == sid
+            isHost: room.hostId == sid,
+            isPrivate: !!room.password
         };
     }
 

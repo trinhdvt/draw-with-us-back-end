@@ -14,6 +14,7 @@ interface RoomResponse {
     currentUsers: number;
     collectionName: string;
     image?: string;
+    isPrivate: boolean;
 }
 
 export default RoomResponse;

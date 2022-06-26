@@ -1,6 +1,7 @@
 import {Inject, Service} from "typedi";
 import {
     Body,
+    CurrentUser,
     Get,
     Head,
     HeaderParam,
@@ -13,6 +14,7 @@ import {StatusCodes} from "http-status-codes";
 
 import RoomRequest from "../dto/request/RoomRequest";
 import RoomServices from "../service/RoomServices";
+import IUserCredential from "../interfaces/IUserCredential";
 
 @Service()
 @JsonController()
@@ -22,8 +24,14 @@ export default class RoomController {
 
     @Post("/rooms")
     @HttpCode(StatusCodes.OK)
-    async createRoom(@Body() roomDto: RoomRequest, @HeaderParam("X-EID") eid: string) {
+    async createRoom(
+        @Body() roomDto: RoomRequest,
+        @HeaderParam("X-EID") eid: string,
+        @CurrentUser({required: false}) host: IUserCredential
+    ) {
         await this.services.validateCreateRoomParams(roomDto);
+
+        if (!host) roomDto.password = "";
         return await this.services.create(eid, roomDto);
     }
 

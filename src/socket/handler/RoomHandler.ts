@@ -8,9 +8,9 @@ const registerRoomHandler = (io: IOType, socket: SocketType) => {
     const sid = socket.id;
     const roomServices = Container.get(RoomServices);
 
-    socket.on("room:join", async (eid: string, callback) => {
+    socket.on("room:join", async (payload, callback) => {
         try {
-            const roomId = await roomServices.joinRoom(sid, eid);
+            const roomId = await roomServices.joinRoom({...payload, sid});
             callback({roomId});
         } catch ({message}) {
             callback({message});
