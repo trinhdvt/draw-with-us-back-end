@@ -3,25 +3,25 @@ import ms from "ms";
 
 import UserRepo, {UserRedis} from "../redis/models/User.redis";
 import StringUtils from "../utils/StringUtils";
+import {IUserInfo} from "../interfaces/IUser";
 
 @Service()
 class PlayerRepository {
-    async create(sid: string, expire?: string) {
+    async create(sid: string, initData?: IUserInfo) {
         const RANDOM_IMG = Math.ceil(Math.random() * 30);
-        const avatar = `${process.env.CDN_URL}/${RANDOM_IMG}.webp`;
+        const avatar = initData.avatar || `${process.env.CDN_URL}/${RANDOM_IMG}.webp`;
+        const name = initData.name || StringUtils.randomName();
         const playerData = {
-            name: StringUtils.randomName(),
-            point: 0,
+            name,
             sid,
-            avatar
+            avatar,
+            point: 0
         };
 
         const userRepo = await UserRepo();
         const user = await userRepo.createAndSave(playerData);
-        if (expire) {
-            const ttl = ms(expire) / 1e3;
-            await userRepo.expire(user.entityId, ttl);
-        }
+        const ttl = ms("1d") / 1e3;
+        await userRepo.expire(user.entityId, ttl);
 
         return user;
     }

@@ -16,9 +16,10 @@ export default class UserServices {
     /**
      * Create anonymous user and store in Redis
      * @param sid - User's socket id
+     * @param initData - User's name and avatar
      */
-    async createAnonymousUser(sid: string): Promise<IAnonymousUser> {
-        const {entityId, name, avatar} = await this.playerRepo.create(sid, "1d");
+    async createAnonymousUser(sid: string, initData?: IUserInfo): Promise<IAnonymousUser> {
+        const {entityId, name, avatar} = await this.playerRepo.create(sid, initData);
         return {
             eid: entityId,
             name,
