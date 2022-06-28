@@ -16,7 +16,7 @@ interface ServerToClientEvents {
 
 interface ClientToServerEvents {
     "user:init": (initData: IUserInfo, callback: (e: IAnonymousUser) => void) => void;
-    "user:update": (arg: IUserInfo) => void;
+    "user:update": (arg: IUserInfo, callback: (e: IUserInfo) => void) => void;
     "room:join": (payload: IRoomJoinEvent, callback: (e: Record<string, unknown>) => void) => void;
     "room:exit": (roomId: string) => void;
     "game:start": () => void;

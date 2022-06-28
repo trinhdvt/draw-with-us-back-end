@@ -45,12 +45,14 @@ export default class UserServices {
      * @param sid - User's socket id
      * @param data - User's name and avatar
      */
-    async updateAnonymousUser(sid: string, {name, avatar}: IUserInfo) {
-        const user = await this.playerRepo.getBySid(sid);
-        if (user) {
+    async updateAnonymousUser(sid: string, {name, avatar}: IUserInfo): Promise<IUserInfo> {
+        let user = await this.playerRepo.getBySid(sid);
+        name = name.slice(0, 30);
+        if (user && name) {
             user.name = name;
             user.avatar = avatar;
-            await this.playerRepo.save(user);
+            user = await this.playerRepo.save(user);
         }
+        return {name: user.name, avatar: user.avatar};
     }
 }

@@ -14,8 +14,9 @@ const registerUserHandler = (io: IOType, socket: SocketType) => {
         return callback(data);
     });
 
-    socket.on("user:update", async arg => {
-        await userServices.updateAnonymousUser(sid, arg);
+    socket.on("user:update", async (data, callback) => {
+        const updatedInfo = await userServices.updateAnonymousUser(sid, data);
+        return callback(updatedInfo);
     });
 
     socket.on("disconnecting", async () => {
