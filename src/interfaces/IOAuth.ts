@@ -8,4 +8,8 @@ interface IFbProfile {
     };
 }
 
-export type {IFbProfile};
+interface IGoogleProfile extends Omit<IFbProfile, "picture"> {
+    picture: string;
+}
+
+export type {IFbProfile, IGoogleProfile};

@@ -3,7 +3,7 @@ import jwt, {JwtPayload, TokenExpiredError} from "jsonwebtoken";
 import axios from "axios";
 import {ForbiddenError} from "routing-controllers";
 
-import {IFbProfile} from "../interfaces/IOAuth";
+import {IFbProfile, IGoogleProfile} from "../interfaces/IOAuth";
 import User from "../models/User.model";
 import IUserCredential from "../interfaces/IUserCredential";
 
@@ -19,6 +19,15 @@ export default class AuthServices {
 
     createAccessToken(payload: string | object, expireIn?: string | number) {
         return jwt.sign(payload, this.SECRET, {expiresIn: expireIn ?? this.TOKEN_TIME});
+    }
+
+    async googleLogin(accessToken: string) {
+        const {name, email, picture} = await this.getGoogleProfile(accessToken);
+        const {id, role} = await this.createSocialAccount(name, email, picture);
+
+        const tokenPayload = {name, email, id, avatar: picture, role};
+        const token = this.createAccessToken(tokenPayload);
+        return {token};
     }
 
     async fbLogin(code: string) {
@@ -63,6 +72,13 @@ export default class AuthServices {
         return data;
     }
 
+    async getGoogleProfile(access_token: string): Promise<IGoogleProfile> {
+        const {data} = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers: {Authorization: `Bearer ${access_token}`}
+        });
+        return data;
+    }
+
     async createSocialAccount(name: string, email: string, avatar: string) {
         let user = await User.findOne({where: {email}});
         if (!user) {
@@ -91,3 +107,4 @@ export default class AuthServices {
         }
     }
 }
+//ya29.A0ARrdaM8RRDQab_Hupww_vsrzSBZpfgg4Dj3LEMLAjz9Dj_8yLcuVMFpIjcORa_OK8wPoR-APhR-LcWp_D8cY0NdbAiuH3QYOcRz0OBd6vE7DSuv2oB-hsdvCqtIWIqbI7rIwA2AZOdB_vuoq2ole4goxPDgXYUNnWUtBVEFTQVRBU0ZRRl91NjFWOExWVUwzZnA0Rmk0STNEcmRDb21ndw0163

@@ -20,4 +20,15 @@ export default class AuthController {
             throw new UnauthorizedError("Fb login failed");
         }
     }
+
+    @Post("/login/google")
+    @HttpCode(StatusCodes.OK)
+    async googleLogin(@BodyParam("accessToken") accessToken: string) {
+        try {
+            return await this.authServices.googleLogin(accessToken);
+        } catch (e) {
+            console.log(e);
+            throw new UnauthorizedError("Google login failed");
+        }
+    }
 }
