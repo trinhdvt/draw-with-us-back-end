@@ -1,3 +1,5 @@
+import RoomResponse from "../dto/response/RoomResponse";
+
 interface IRoomJoinEvent {
     /**
      * Room's eid
@@ -16,4 +18,11 @@ interface IRoomJoinData extends IRoomJoinEvent {
     sid: string;
 }
 
-export type {IRoomJoinEvent, IRoomJoinData};
+interface IRoomPreview extends RoomResponse {
+    host: {
+        name: string;
+        avatar: string;
+    };
+}
+
+export type {IRoomJoinEvent, IRoomJoinData, IRoomPreview};

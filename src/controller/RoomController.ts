@@ -47,6 +47,11 @@ export default class RoomController {
         return await this.services.getRoom(sid, roomId);
     }
 
+    @Get("/room/:roomId/preview")
+    async previewRoom(@Param("roomId") roomId: string){
+        return await this.services.getPreviewRoom(roomId);
+    }
+
     @Head("/room/:roomId/player")
     @HttpCode(StatusCodes.OK)
     async checkPlayerInRoom(@Param("roomId") roomId: string, @HeaderParam("X-SID") sid: string) {

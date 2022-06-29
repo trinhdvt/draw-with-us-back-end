@@ -14,7 +14,7 @@ import AssertUtils from "../utils/AssertUtils";
 import AppConfig from "../models/AppConfig.model";
 import {IPlayer} from "../interfaces/IUser";
 import {IMessage} from "../interfaces/IMessage";
-import {IRoomJoinData} from "../interfaces/IRoom";
+import {IRoomJoinData, IRoomPreview} from "../interfaces/IRoom";
 
 @Service()
 export default class RoomServices {
@@ -256,5 +256,26 @@ export default class RoomServices {
             ...payload,
             id: Math.random().toString(36).substring(2)
         });
+    }
+
+    async getPreviewRoom(roomId: string): Promise<IRoomPreview> {
+        const room = await this.roomRepo.getByShortId(roomId);
+        AssertUtils.isExist(room, new NotFoundError("Room not found"));
+
+        const host = await this.playerRepo.getBySid(room.hostId);
+        AssertUtils.isExist(host, new NotFoundError("Host not found"));
+
+        return {
+            id: room.roomId,
+            eid: room.entityId,
+            name: room.roomName,
+            host: {name: host.name, avatar: host.avatar},
+            timeOut: room.timeOut,
+            maxUsers: room.maxUsers,
+            currentUsers: room.playerIds.length,
+            collectionName: room.collectionName,
+            image: room.image,
+            isPrivate: !!room.password
+        };
     }
 }
