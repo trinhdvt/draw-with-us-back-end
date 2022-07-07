@@ -42,7 +42,7 @@ export default class GameServices {
         SocketServer.io.to(roomId).emit("room:update");
         this.roomServices.sendMessage(roomId, {
             type: "warn",
-            from: "System ⚙️: ",
+            from: "⚙️ System: ",
             message: "Game has started!!!"
         });
 
@@ -61,7 +61,7 @@ export default class GameServices {
         const drawTopics = await collection.$get("drawTopic", {
             order: sequelize.random()
         });
-        room.topics = drawTopics.map(topic => JSON.stringify(new DrawTopicDto(topic))).slice(-2);
+        room.topics = drawTopics.map(topic => JSON.stringify(new DrawTopicDto(topic))).slice(-3);
         await this.roomRepo.save(room);
         collection.playedCount += 1;
         await collection.save();
@@ -96,7 +96,7 @@ export default class GameServices {
             SocketServer.io.to(roomId).emit("room:update");
             this.roomServices.sendMessage(roomId, {
                 type: "error",
-                from: "System ⚙️: ",
+                from: "⚙️ System: ",
                 message: "Game has finished!!! Let's see the result👀"
             });
             SocketServer.io.to(roomId).emit("game:finish");
@@ -113,7 +113,7 @@ export default class GameServices {
         SocketServer.io.to(roomId).emit("game:nextTurn", currentTopic);
         this.roomServices.sendMessage(roomId, {
             type: "warn",
-            from: "System ⚙️: ",
+            from: "⚙️ System: ",
             message: `The next topic is ${currentTopic.nameVi}🔥`
         });
 
@@ -121,7 +121,7 @@ export default class GameServices {
             SocketServer.io.to(roomId).emit("game:endTurn");
             this.roomServices.sendMessage(roomId, {
                 type: "warn",
-                from: "System ⚙️: ",
+                from: "⚙️ System: ",
                 message: "Time out!!! Let's take a rest⌛️"
             });
             setTimeout(async () => {

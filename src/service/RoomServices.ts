@@ -120,7 +120,7 @@ export default class RoomServices {
         SocketServer.joinRoom(sid, room.roomId);
         const newPlayer = await this.playerRepo.getBySid(sid);
         this.sendMessage(room.roomId, {
-            from: "System ⚙️: ",
+            from: "⚙️ System: ",
             message: `${newPlayer?.name} joined the room!`,
             type: "success"
         });

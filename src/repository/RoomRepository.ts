@@ -1,5 +1,6 @@
 import {Service} from "typedi";
 import {EntityData} from "redis-om";
+import ms from "ms";
 
 import RoomRepo, {RoomRedis} from "../redis/models/Room.redis";
 
@@ -10,7 +11,11 @@ type RoomValues = string | number | boolean | Date;
 class RoomRepository {
     async create(roomDto: EntityData) {
         const roomRepo = await RoomRepo();
-        return await roomRepo.createAndSave(roomDto);
+        const room = await roomRepo.createAndSave(roomDto);
+        const ttl = ms("1d") / 1e3;
+        await roomRepo.expire(room.entityId, ttl);
+
+        return room;
     }
 
     async getAll() {
