@@ -1,6 +1,8 @@
 import {IMessage} from "../interfaces/IMessage";
 import {ERoomEvent} from "../interfaces/IRoom";
 
+import StringUtils from "./StringUtils";
+
 const fromEn = "⚙️ System: ";
 const fromVi = "⚙️ Hệ thống: ";
 
@@ -41,8 +43,8 @@ const GameMessages:
     [ERoomEvent.NEXT_TURN]: (en: string, vi: string) => ({
         type: "warn",
         i18n: {
-            en: {message: `The next topic is 🔥${en}🔥`, from: fromEn},
-            vi: {message: `Chủ đề tiếp theo là 🔥${vi}🔥`, from: fromVi}
+            en: {message: `The next topic is 🔥${StringUtils.capitalizeAll(en)}🔥`, from: fromEn},
+            vi: {message: `Chủ đề tiếp theo là 🔥${StringUtils.capitalizeAll(vi)}🔥`, from: fromVi}
         }
     }),
     [ERoomEvent.JOIN]: (en: string, vi: string) => ({

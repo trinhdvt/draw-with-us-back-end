@@ -30,4 +30,12 @@ export default class StringUtils {
         if (!data || !hash) return false;
         return await bcrypt.compare(data, hash);
     }
+
+    public static capitalize(str: string) {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    }
+
+    public static capitalizeAll(str: string) {
+        return str.replace(/\w\S*/g, txt => this.capitalize(txt));
+    }
 }
