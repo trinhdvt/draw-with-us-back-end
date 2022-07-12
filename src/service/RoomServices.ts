@@ -14,7 +14,8 @@ import AssertUtils from "../utils/AssertUtils";
 import AppConfig from "../models/AppConfig.model";
 import {IPlayer} from "../interfaces/IUser";
 import {IMessage} from "../interfaces/IMessage";
-import {IRoomJoinData, IRoomPreview} from "../interfaces/IRoom";
+import {ERoomEvent, IRoomJoinData, IRoomPreview} from "../interfaces/IRoom";
+import GameMessages from "../utils/GameUtils";
 
 @Service()
 export default class RoomServices {
@@ -119,11 +120,8 @@ export default class RoomServices {
         await this.roomRepo.save(room);
         SocketServer.joinRoom(sid, room.roomId);
         const newPlayer = await this.playerRepo.getBySid(sid);
-        this.sendMessage(room.roomId, {
-            from: "⚙️ System: ",
-            message: `${newPlayer?.name} joined the room!`,
-            type: "success"
-        });
+        const msg = GameMessages[ERoomEvent.JOIN](newPlayer.name, newPlayer.name);
+        this.sendMessage(room.roomId, msg);
         return {
             roomId: room.roomId,
             onMiddleGame: room.status === RoomStatus.PLAYING

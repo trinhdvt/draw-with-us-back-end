@@ -8,6 +8,7 @@ interface IGameTopic {
 
 class DrawTopicDto implements IGameTopic {
     id: number;
+    name: string;
     nameEn: string;
     nameVi: string;
 

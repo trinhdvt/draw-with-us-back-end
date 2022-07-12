@@ -25,4 +25,14 @@ interface IRoomPreview extends RoomResponse {
     };
 }
 
+enum ERoomEvent {
+    JOIN,
+    START,
+    FINISH,
+    END_TURN,
+    PLAYER_SUCCESS,
+    NEXT_TURN
+}
+
 export type {IRoomJoinEvent, IRoomJoinData, IRoomPreview};
+export {ERoomEvent};

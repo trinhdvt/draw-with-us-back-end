@@ -9,7 +9,8 @@ import sequelize from "../models";
 import RoomRepository from "../repository/RoomRepository";
 import PlayerRepository from "../repository/PlayerRepository";
 import AssertUtils from "../utils/AssertUtils";
-import logger from "../utils/Logger";
+import GameMessages from "../utils/GameUtils";
+import {ERoomEvent} from "../interfaces/IRoom";
 
 import MLServices from "./MLServices";
 import RoomServices from "./RoomServices";
@@ -40,14 +41,9 @@ export default class GameServices {
 
         const {roomId} = await this.prepareGame(room);
         SocketServer.io.to(roomId).emit("room:update");
-        this.roomServices.sendMessage(roomId, {
-            type: "warn",
-            from: "⚙️ System: ",
-            message: "Game has started!!!"
-        });
+        this.roomServices.sendMessage(roomId, GameMessages[ERoomEvent.START]);
 
         // trigger next-turn game
-        logger.info("Game loop has started");
         await this.nextTurn(roomId);
     }
 
@@ -94,13 +90,8 @@ export default class GameServices {
             room.status = RoomStatus.FINISHED;
             await this.roomRepo.save(room);
             SocketServer.io.to(roomId).emit("room:update");
-            this.roomServices.sendMessage(roomId, {
-                type: "error",
-                from: "⚙️ System: ",
-                message: "Game has finished!!! Let's see the result👀"
-            });
+            this.roomServices.sendMessage(roomId, GameMessages[ERoomEvent.FINISH]);
             SocketServer.io.to(roomId).emit("game:finish");
-            logger.info("Game loop has finished");
             return;
         }
 
@@ -111,22 +102,13 @@ export default class GameServices {
         await this.roomRepo.save(room);
 
         SocketServer.io.to(roomId).emit("game:nextTurn", currentTopic);
-        this.roomServices.sendMessage(roomId, {
-            type: "warn",
-            from: "⚙️ System: ",
-            message: `The next topic is ${currentTopic.nameVi}🔥`
-        });
+        const msg = GameMessages[ERoomEvent.NEXT_TURN](currentTopic.nameEn, currentTopic.nameVi);
+        this.roomServices.sendMessage(roomId, msg);
 
         return setTimeout(() => {
             SocketServer.io.to(roomId).emit("game:endTurn");
-            this.roomServices.sendMessage(roomId, {
-                type: "warn",
-                from: "⚙️ System: ",
-                message: "Time out!!! Let's take a rest⌛️"
-            });
-            setTimeout(async () => {
-                await this.nextTurn(roomId);
-            }, 3e3);
+            this.roomServices.sendMessage(roomId, GameMessages[ERoomEvent.END_TURN]);
+            setTimeout(async () => await this.nextTurn(roomId), 3e3);
         }, timeOut * 1e3);
     }
 
@@ -166,10 +148,9 @@ export default class GameServices {
                 player.point += Math.floor(point);
                 await this.playerRepo.save(player);
             }
-            this.roomServices.sendMessage(roomId, {
-                type: "success",
-                message: `${player.name} has done a correct drawing!👏`
-            });
+
+            const msg = GameMessages[ERoomEvent.PLAYER_SUCCESS](player.name, player.name);
+            this.roomServices.sendMessage(roomId, msg);
             SocketServer.io.to(roomId).emit("room:update");
         }
 

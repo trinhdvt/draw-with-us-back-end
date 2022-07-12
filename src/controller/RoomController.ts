@@ -48,7 +48,7 @@ export default class RoomController {
     }
 
     @Get("/room/:roomId/preview")
-    async previewRoom(@Param("roomId") roomId: string){
+    async previewRoom(@Param("roomId") roomId: string) {
         return await this.services.getPreviewRoom(roomId);
     }
 

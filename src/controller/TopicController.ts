@@ -1,5 +1,5 @@
 import {Inject, Service} from "typedi";
-import {Get, HttpCode, JsonController, Param, QueryParams} from "routing-controllers";
+import {Get, HttpCode, JsonController, Param, QueryParam, QueryParams} from "routing-controllers";
 import {StatusCodes} from "http-status-codes";
 
 import TopicServices from "../service/TopicServices";
@@ -13,8 +13,8 @@ export default class TopicController {
 
     @Get("/topics")
     @HttpCode(StatusCodes.OK)
-    async getAll() {
-        return await this.services.getAll();
+    async getAll(@QueryParam("locale") locale: string) {
+        return await this.services.getAll(locale);
     }
 
     @Get("/topic/:topicId/samples")

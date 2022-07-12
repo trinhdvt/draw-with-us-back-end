@@ -8,11 +8,17 @@ import ISample from "../dto/response/SampleDto";
 
 @Service()
 class TopicServices {
-    async getAll() {
+    async getAll(locale?: string) {
+        const orderCol = locale === "en" ? "nameEn" : "nameVi";
         const topics = await DrawTopic.findAll({
-            order: [["nameVi", "ASC"]]
+            order: [[orderCol, "ASC"]]
         });
-        return topics.map(t => new DrawTopicDto(t));
+
+        return topics.map(t => {
+            const dto = new DrawTopicDto(t);
+            dto.name = locale == "en" ? t.nameEn : t.nameVi;
+            return dto;
+        });
     }
 
     async getSamples(topicId: string, findOptions?: FindOptions<TopicSample>) {
