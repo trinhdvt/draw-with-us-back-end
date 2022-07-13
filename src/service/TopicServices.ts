@@ -5,6 +5,7 @@ import DrawTopic from "../models/DrawTopic.model";
 import DrawTopicDto from "../dto/response/DrawTopicDto";
 import TopicSample from "../models/TopicSample.model";
 import ISample from "../dto/response/SampleDto";
+import StringUtils from "../utils/StringUtils";
 
 @Service()
 class TopicServices {
@@ -17,6 +18,7 @@ class TopicServices {
         return topics.map(t => {
             const dto = new DrawTopicDto(t);
             dto.name = locale == "en" ? t.nameEn : t.nameVi;
+            dto.name = StringUtils.capitalize(dto.name);
             return dto;
         });
     }

@@ -38,6 +38,7 @@ export default class RoomServices {
         if (roomDto.password) roomHashPassword = await StringUtils.hash(roomDto.password);
 
         const roomName = roomDto.name?.trim() ?? `${host.name}'s room`;
+        const numOfTopics = await collection.$count("drawTopic");
         const roomId = StringUtils.randomId();
         const room = await this.roomRepo.create({
             hostId: host.sid,
@@ -50,6 +51,7 @@ export default class RoomServices {
             playerIds: [host.sid],
             collectionId: collection.id,
             collectionName: collection.name,
+            numOfTopics: numOfTopics,
             topics: [],
             status: RoomStatus.WAITING
         });
@@ -90,6 +92,7 @@ export default class RoomServices {
             maxUsers: room.maxUsers,
             currentUsers: room.playerIds.length,
             collectionName: room.collectionName,
+            numberOfTopics: room.numOfTopics,
             id: room.roomId,
             name: room.roomName,
             image: room.image,
@@ -167,6 +170,7 @@ export default class RoomServices {
         const room = await this.checkPlayer(roomId, sid);
         return {
             collectionName: room.collectionName,
+            numberOfTopics: room.numOfTopics,
             currentUsers: room.playerIds.length,
             id: room.roomId,
             maxUsers: room.maxUsers,
@@ -272,6 +276,7 @@ export default class RoomServices {
             maxUsers: room.maxUsers,
             currentUsers: room.playerIds.length,
             collectionName: room.collectionName,
+            numberOfTopics: room.numOfTopics,
             image: room.image,
             isPrivate: !!room.password
         };

@@ -24,6 +24,7 @@ interface RoomRedis {
     playerIds: string[];
     collectionId: string;
     collectionName: string;
+    numOfTopics: number;
     /**
      * List of topics to draw {@link IGameTopic}
      */
@@ -53,6 +54,7 @@ const RoomSchema = new Schema(RoomRedis, {
     playerIds: {type: "string[]"},
     collectionId: {type: "string"},
     collectionName: {type: "string"},
+    numOfTopics: {type: "number"},
     timeOut: {type: "number"},
     maxUsers: {type: "number"},
     roomId: {type: "string"},

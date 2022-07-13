@@ -15,6 +15,7 @@ interface RoomResponse {
     collectionName: string;
     image?: string;
     isPrivate: boolean;
+    numberOfTopics: number;
 }
 
 export default RoomResponse;
