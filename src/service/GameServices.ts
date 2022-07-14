@@ -34,10 +34,7 @@ export default class GameServices {
      * @param hostSid - Host's socket id
      */
     async startGame(hostSid: string) {
-        const room = await this.roomRepo.getByAttr("hostId", hostSid);
-        const {playerIds} = room;
-        AssertUtils.isExist(room, new NotFoundError("Room not found"));
-        AssertUtils.isTrue(playerIds.length >= 2, new UnauthorizedError("Unable to start game"));
+        const room = await this.roomCheck(hostSid);
 
         const {roomId} = await this.prepareGame(room);
         SocketServer.io.to(roomId).emit("room:update");
@@ -45,6 +42,39 @@ export default class GameServices {
 
         // trigger next-turn game
         await this.nextTurn(roomId);
+    }
+
+    async pauseGame(hostSid: string) {
+        const room = await this.roomCheck(hostSid);
+        if (![RoomStatus.PLAYING, RoomStatus.PAUSED].includes(room.status)) return false;
+
+        const currentStatus = room.status;
+        const isPendingPause = room.pendingPause;
+
+        // playing to pending pause or resume
+        if (currentStatus === RoomStatus.PLAYING) {
+            room.pendingPause = !isPendingPause;
+            await this.roomRepo.save(room);
+
+        } else {
+            // paused to playing
+            room.status = RoomStatus.PLAYING;
+            room.pendingPause = false;
+            await this.roomRepo.save(room);
+            const roomId = room.roomId;
+            SocketServer.io.to(roomId).emit("room:update");
+            this.roomServices.sendMessage(roomId, GameMessages[ERoomEvent.RESUME]);
+            await this.nextTurn(roomId);
+        }
+        return true;
+    }
+
+    private async roomCheck(hostSid: string): Promise<RoomRedis> {
+        const room = await this.roomRepo.getByAttr("hostId", hostSid);
+        AssertUtils.isExist(room, new NotFoundError("Room not found"));
+        const {playerIds} = room;
+        AssertUtils.isTrue(playerIds.length >= 2, new UnauthorizedError("Unable to start game"));
+        return room;
     }
 
     private async prepareGame(room: RoomRedis): Promise<RoomRedis> {
@@ -80,9 +110,19 @@ export default class GameServices {
      * Trigger next turn
      * @param roomId - Room's id
      */
-    async nextTurn(roomId: string) {
+    private async nextTurn(roomId: string) {
         const room = await this.roomRepo.getByShortId(roomId);
-        if (!room || room.status != RoomStatus.PLAYING) {
+        if (!room || room.status !== RoomStatus.PLAYING) {
+            return;
+        }
+
+        // pause if the game is scheduled to be paused
+        if (room.pendingPause) {
+            room.status = RoomStatus.PAUSED;
+            room.pendingPause = false;
+            await this.roomRepo.save(room);
+            SocketServer.io.to(roomId).emit("room:update");
+            this.roomServices.sendMessage(roomId, GameMessages[ERoomEvent.PAUSED]);
             return;
         }
 

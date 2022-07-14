@@ -5,7 +5,8 @@ import RedisClient from "../index";
 enum RoomStatus {
     WAITING = "waiting",
     PLAYING = "playing",
-    FINISHED = "finished"
+    FINISHED = "finished",
+    PAUSED = "paused"
 }
 
 interface RoomRedis {
@@ -45,6 +46,7 @@ interface RoomRedis {
     endTurnTime: number;
     image: string;
     password: string;
+    pendingPause: boolean;
 }
 
 class RoomRedis extends Entity {}
@@ -64,7 +66,8 @@ const RoomSchema = new Schema(RoomRedis, {
     currentTopic: {type: "string"},
     endTurnTime: {type: "number"},
     image: {type: "string"},
-    password: {type: "string"}
+    password: {type: "string"},
+    pendingPause: {type: "boolean"}
 });
 
 const RoomRepo = async () => {

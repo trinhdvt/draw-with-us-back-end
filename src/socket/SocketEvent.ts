@@ -25,6 +25,7 @@ interface ClientToServerEvents {
         image: string,
         callback: (e: {isCorrect: boolean}) => void
     ) => void;
+    "game:pause": (callback: (e: Record<string, unknown>) => void) => void;
     "room:msg": (roomId: string, payload: IMessage) => void;
 }
 

@@ -31,7 +31,9 @@ enum ERoomEvent {
     FINISH,
     END_TURN,
     PLAYER_SUCCESS,
-    NEXT_TURN
+    NEXT_TURN,
+    PAUSED,
+    RESUME
 }
 
 export type {IRoomJoinEvent, IRoomJoinData, IRoomPreview};

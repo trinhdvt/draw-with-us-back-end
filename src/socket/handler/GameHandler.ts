@@ -16,6 +16,19 @@ const registerGameHandler = (io: IOType, socket: SocketType) => {
         }
     });
 
+    socket.on("game:pause", async callback => {
+        try {
+            const result = await gameServices.pauseGame(sid);
+            callback({
+                isPaused: result
+            });
+        } catch (e) {
+            callback({
+                message: "Unable to pause game"
+            });
+        }
+    });
+
     socket.on("game:predict", async (roomId: string, image: string, callback) => {
         const isCorrect = await gameServices.check(sid, roomId, image);
         return callback({isCorrect});

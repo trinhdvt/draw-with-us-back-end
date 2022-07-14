@@ -33,6 +33,20 @@ const GameMessages:
             vi: {message: "Hết giờ!!! Nghỉ ngơi một chút nào⌛️", from: fromVi}
         }
     },
+    [ERoomEvent.PAUSED]: {
+        type: "error",
+        i18n: {
+            en: {message: "The game has been paused!", from: fromEn},
+            vi: {message: "Trò chơi đã được tạm dừng!️", from: fromVi}
+        }
+    },
+    [ERoomEvent.RESUME]: {
+        type: "error",
+        i18n: {
+            en: {message: "The game has been resumed!", from: fromEn},
+            vi: {message: "Trò chơi đã được tiếp tục!️", from: fromVi}
+        }
+    },
     [ERoomEvent.PLAYER_SUCCESS]: (en: string, vi: string) => ({
         type: "success",
         i18n: {
